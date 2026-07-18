@@ -1,7 +1,7 @@
 export default function Home() {
   return (
-    <main className="min-h-screen bg-black text-white">
-      <h1 className="text-5xl font-bold p-10">
+    <main className="min-h-screen bg-black text-white flex items-center justify-center">
+      <h1 className="text-6xl font-bold tracking-wide">
         GrindBase
       </h1>
     </main>
