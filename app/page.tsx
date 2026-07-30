@@ -5,8 +5,10 @@ import Link from "next/link"
 import Image from "next/image"
 import {
   ArrowRight,
+  Award,
   Crosshair,
   Gem,
+  Radar,
   Target,
   TrendingUp,
   Trophy,
@@ -18,6 +20,9 @@ import { GoldBar } from "@/components/gold-bar"
 import { GoogleSignIn } from "@/components/google-sign-in"
 import { useCamoData } from "@/lib/use-camo-data"
 import { createClient } from "@/lib/supabase/client"
+import { categories } from "@/lib/data"
+import { getPlatinumCount } from "@/lib/calculations"
+import { cn } from "@/lib/utils"
 
 const features = [
   {
@@ -40,6 +45,11 @@ const features = [
     title: "Seasonal Camos",
     desc: "Never miss a limited camo — track every seasonal challenge before it expires.",
   },
+  {
+    icon: Radar,
+    title: "DMZ Recon Camos",
+    desc: "Track Season 1: Flux and Season 2: Constellation's End, gun by gun.",
+  },
 ]
 
 export default function LandingPage() {
@@ -59,6 +69,26 @@ export default function LandingPage() {
 
     return () => listener.subscription.unsubscribe()
   }, [])
+
+  const platinumCategoryCount = getPlatinumCount(weapons, categories)
+
+  // Weapons that actually got a recorded Gold-unlock timestamp, newest
+  // first. Weapons that were already Gold before this feature existed
+  // won't have one, so they simply won't show up here.
+  const recentlyUnlocked = weapons
+    .filter((w): w is typeof w & { goldUnlockedAt: number } => Boolean(w.goldUnlockedAt))
+    .sort((a, b) => b.goldUnlockedAt - a.goldUnlockedAt)
+    .slice(0, 3)
+
+  function timeAgo(ts: number) {
+    const mins = Math.floor((Date.now() - ts) / 60000)
+    if (mins < 1) return "just now"
+    if (mins < 60) return `${mins}m ago`
+    const hours = Math.floor(mins / 60)
+    if (hours < 24) return `${hours}h ago`
+    const days = Math.floor(hours / 24)
+    return `${days}d ago`
+  }
 
   return (
     <div className="min-h-screen bg-hud-grid">
@@ -156,11 +186,11 @@ export default function LandingPage() {
             </div>
 
             <div className="mt-10 flex items-center gap-8">
-              <Stat value={`${stats.goldCount}/${weapons.length}`} label="Gold Progress" />
+              <Stat value={`${stats.goldCount}/${weapons.length}`} label="Gold" />
               <div className="h-8 w-px bg-border" />
-              <Stat value={`${stats.goldCount}`} label="Gold Camos" />
+              <Stat value={`${platinumCategoryCount}/${categories.length}`} label="Platinum" />
               <div className="h-8 w-px bg-border" />
-              <Stat value={`${stats.diamondCount}`} label="Diamond Camos" />
+              <Stat value={`${stats.diamondCount}/${weapons.length}`} label="Diamond" />
             </div>
           </div>
 
@@ -169,37 +199,43 @@ export default function LandingPage() {
             <div className="hud-corner relative rounded-2xl border border-border/70 glass p-6 glow-gold-sm sm:p-8">
               <div className="flex items-center justify-between">
                 <span className="font-mono text-xs tracking-widest text-muted-foreground">
-                  CURRENT GRIND
+                  RECENTLY COMPLETED GRIND
                 </span>
                 <span className="rounded-full border border-gold/30 bg-gold/10 px-2 py-0.5 text-[10px] font-medium text-gold">
-                  3 ACTIVE
+                  RECENT
                 </span>
               </div>
               <div className="mt-4 flex flex-col items-center">
                 <CircularProgress value={stats.totalCompletion} label="Arsenal" />
               </div>
               <div className="mt-6 space-y-4">
-                {weapons.slice(0, 3).map((w) => (
-                  <div key={w.id} className="flex items-center gap-3">
-                    <div className="relative h-9 w-16 shrink-0 rounded-md bg-secondary/60">
-                      <Image
-                        src={w.image}
-                        alt={w.name}
-                        fill
-                        className="object-contain p-1"
-                      />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="truncate font-medium">{w.name}</span>
-                        <span className="font-mono text-xs text-muted-foreground">
-                          {w.completion}%
+                {recentlyUnlocked.length > 0 ? (
+                  recentlyUnlocked.map((w) => (
+                    <div key={w.id} className="flex items-center gap-3">
+                      <div className="relative h-9 w-16 shrink-0 rounded-md bg-secondary/60">
+                        <Image
+                          src={w.image}
+                          alt={w.name}
+                          fill
+                          className="object-contain p-1"
+                        />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="truncate font-medium">{w.name}</span>
+                          <span className="font-mono text-xs text-gold">Gold</span>
+                        </div>
+                        <span className="mt-1 block text-xs text-muted-foreground">
+                          Unlocked {timeAgo(w.goldUnlockedAt)}
                         </span>
                       </div>
-                      <GoldBar value={w.completion} className="mt-1.5" />
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-center text-sm text-muted-foreground">
+                    No recent unlocks yet — Gold a weapon to see it here.
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -216,7 +252,7 @@ export default function LandingPage() {
             Built for completionists who want it all
           </h2>
         </div>
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {features.map((f) => {
             const Icon = f.icon
             return (
@@ -262,41 +298,43 @@ export default function LandingPage() {
             </div>
 
             <div className="mt-8 grid gap-4 md:grid-cols-3">
-              <div className="rounded-2xl border border-border/60 bg-card/60 p-6">
-                <div className="flex items-center justify-center">
-                  <CircularProgress
-                    value={stats.totalCompletion}
-                    size={150}
-                    label="Total"
-                  />
-                </div>
+              <div className="flex h-full items-center justify-center rounded-2xl border border-border/60 bg-card/60 p-6">
+                <CircularProgress
+                  value={stats.totalCompletion}
+                  size={150}
+                  label="Total"
+                />
               </div>
               <div className="grid grid-cols-2 gap-4 md:col-span-2">
                 {[
-                  { label: "Gold", value: stats.goldCount, tone: "gold" as const },
-                  { label: "Platinum", value: stats.platinumCount, tone: "platinum" as const },
-                  { label: "Diamond", value: stats.diamondCount, tone: "diamond" as const },
-                  { label: "Seasonal", value: `${stats.seasonalCompletion}%`, tone: "gold" as const },
-                ].map((s) => (
-                  <div
-                    key={s.label}
-                    className="flex flex-col justify-between rounded-2xl border border-border/60 bg-card/60 p-5"
-                  >
-                    <span className="text-xs tracking-widest text-muted-foreground uppercase">
-                      {s.label}
-                    </span>
-                    <span className="mt-3 font-mono text-3xl font-semibold text-gold">
-                      {s.value}
-                    </span>
-                    <GoldBar
-                      value={
-                        typeof s.value === "number" ? Math.min(100, s.value * 12) : 61
-                      }
-                      tone={s.tone}
-                      className="mt-3"
-                    />
-                  </div>
-                ))}
+                  { label: "Gold", value: stats.goldCount, total: weapons.length, tone: "gold" as const, text: "text-gold" },
+                  { label: "Platinum", value: platinumCategoryCount, total: categories.length, tone: "platinum" as const, text: "text-platinum" },
+                  { label: "Diamond", value: stats.diamondCount, total: weapons.length, tone: "diamond" as const, text: "text-diamond" },
+                  {
+                    label: "Damascus",
+                    value: stats.damascusUnlocked ? weapons.length : 0,
+                    total: weapons.length,
+                    tone: "damascus" as const,
+                    text: "bg-gradient-to-r from-red-400 via-purple-400 to-blue-400 bg-clip-text text-transparent",
+                  },
+                ].map((s) => {
+                  const pct = s.total > 0 ? Math.round((s.value / s.total) * 100) : 0
+                  return (
+                    <div
+                      key={s.label}
+                      className="flex flex-col justify-between rounded-2xl border border-border/60 bg-card/60 p-5"
+                    >
+                      <span className="text-xs tracking-widest text-muted-foreground uppercase">
+                        {s.label}
+                      </span>
+                      <span className={cn("mt-3 font-mono text-3xl font-semibold", s.text)}>
+                        {s.value}
+                        <span className="text-lg text-muted-foreground">/{s.total}</span>
+                      </span>
+                      <GoldBar value={pct} tone={s.tone} className="mt-3" />
+                    </div>
+                  )
+                })}
               </div>
             </div>
           </div>

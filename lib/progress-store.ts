@@ -78,7 +78,14 @@ function hydrate() {
 }
 
 function updateWeaponInStore(weaponId: string, patch: Partial<WeaponProgress>) {
-  state = state.map((p) => (p.weaponId === weaponId ? { ...p, ...patch } : p))
+  // Record exactly when a weapon crosses into Gold, so "recently unlocked"
+  // can be based on real time instead of guesswork. Only stamps on the
+  // transition to true — toggling gold off doesn't erase the record.
+  const finalPatch: Partial<WeaponProgress> = { ...patch }
+  if (patch.gold === true) {
+    ;(finalPatch as Partial<WeaponProgress> & { goldUnlockedAt?: number }).goldUnlockedAt = Date.now()
+  }
+  state = state.map((p) => (p.weaponId === weaponId ? { ...p, ...finalPatch } : p))
   persist()
   emit()
 }

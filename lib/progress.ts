@@ -7,4 +7,5 @@ export interface WeaponProgress {
   completion: number
   matchesRemaining: number
   diamondProgress: number
+  goldUnlockedAt?: number
 }

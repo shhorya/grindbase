@@ -7,7 +7,7 @@ type Props = {
   className?: string
   label?: string
   sublabel?: string
-  tone?: "gold" | "diamond"
+  tone?: "gold" | "diamond" | "platinum" | "damascus"
 }
 
 export function CircularProgress({
