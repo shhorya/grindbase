@@ -3,9 +3,10 @@
 import { useMemo, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowLeft, Check, Lock, Minus, Plus, SlidersHorizontal, Unlock } from "lucide-react"
+import { ArrowLeft, Check, Lock, Minus, Plus, Search, SlidersHorizontal, Unlock } from "lucide-react"
 import { HudNav } from "@/components/hud-nav"
 import { GoldBar } from "@/components/gold-bar"
+import { Input } from "@/components/ui/input"
 import { useSeasonalData } from "@/lib/use-seasonal-data"
 import { cn } from "@/lib/utils"
 import type { WeaponCategory } from "@/lib/types"
@@ -28,6 +29,7 @@ export function SeasonalCamoExplorer({ camoId }: { camoId: string }) {
   const { camoStats, isOwned, toggle, getMatchProgress, setMatchProgress } = useSeasonalData()
   const [filter, setFilter] = useState<Filter>("owned")
   const [category, setCategory] = useState<WeaponCategory | "all">("all")
+  const [query, setQuery] = useState("")
 
   const camo = camoStats.find((c) => c.id === camoId)
   const isMatchesBased = camo?.unlockType === "matches"
@@ -42,6 +44,9 @@ export function SeasonalCamoExplorer({ camoId }: { camoId: string }) {
     if (!camo) return []
     let list = camo.eligibleWeapons
     if (category !== "all") list = list.filter((w) => w.category === category)
+    if (query.trim()) {
+      list = list.filter((w) => w.name.toLowerCase().includes(query.trim().toLowerCase()))
+    }
     switch (filter) {
       case "owned":
         return list.filter((w) => weaponIsUnlocked(w.id))
@@ -51,11 +56,21 @@ export function SeasonalCamoExplorer({ camoId }: { camoId: string }) {
         return list
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [camo, filter, category, isOwned, getMatchProgress, camoId])
+  }, [camo, filter, category, query, isOwned, getMatchProgress, camoId])
+
+  function handleSelectAll() {
+    const anyUnowned = filtered.some((w) => !isOwned(w.id, camoId))
+    filtered.forEach((w) => {
+      const owned = isOwned(w.id, camoId)
+      if (anyUnowned && !owned) toggle(w.id, camoId)
+      if (!anyUnowned && owned) toggle(w.id, camoId)
+    })
+  }
 
   if (!camo) return null
 
   const pct = camo.totalEligible > 0 ? Math.round((camo.ownedCount / camo.totalEligible) * 100) : 0
+  const allSelected = filtered.length > 0 && filtered.every((w) => isOwned(w.id, camoId))
 
   return (
     <div className="min-h-screen bg-hud-grid">
@@ -92,6 +107,18 @@ export function SeasonalCamoExplorer({ camoId }: { camoId: string }) {
           </div>
         </div>
 
+        {!isMatchesBased && (
+          <div className="relative mt-6">
+            <Search className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search weapons by name…"
+              className="h-12 rounded-2xl border-border/70 bg-card/60 pl-12 text-base backdrop-blur-xl focus-visible:border-gold/50 focus-visible:ring-gold/20"
+            />
+          </div>
+        )}
+
         <div className="mt-6 flex flex-col gap-4">
           <div className="flex flex-wrap items-center gap-2">
             <span className="mr-1 hidden items-center gap-1.5 text-xs tracking-widest text-muted-foreground uppercase sm:flex">
@@ -108,19 +135,30 @@ export function SeasonalCamoExplorer({ camoId }: { camoId: string }) {
             ))}
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="mr-1 hidden text-xs tracking-widest text-muted-foreground uppercase sm:inline">
-              Status
-            </span>
-            <Chip active={filter === "all"} onClick={() => setFilter("all")}>
-              All
-            </Chip>
-            <Chip active={filter === "owned"} onClick={() => setFilter("owned")}>
-              Owned
-            </Chip>
-            <Chip active={filter === "unowned"} onClick={() => setFilter("unowned")}>
-              Unowned
-            </Chip>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="mr-1 hidden text-xs tracking-widest text-muted-foreground uppercase sm:inline">
+                Status
+              </span>
+              <Chip active={filter === "all"} onClick={() => setFilter("all")}>
+                All
+              </Chip>
+              <Chip active={filter === "owned"} onClick={() => setFilter("owned")}>
+                Owned
+              </Chip>
+              <Chip active={filter === "unowned"} onClick={() => setFilter("unowned")}>
+                Unowned
+              </Chip>
+            </div>
+
+            {!isMatchesBased && filtered.length > 0 && (
+              <button
+                onClick={handleSelectAll}
+                className="rounded-full border border-gold/40 bg-gold/10 px-3.5 py-1.5 text-sm font-medium text-gold hover:bg-gold/20"
+              >
+                {allSelected ? "Deselect All" : "Select All"}
+              </button>
+            )}
           </div>
         </div>
 
@@ -141,15 +179,10 @@ export function SeasonalCamoExplorer({ camoId }: { camoId: string }) {
                       : "opacity-60"
                   )}
                 >
-                  <Link
-                    href={`/weapons/${w.id}`}
-                    className="absolute inset-0 z-0"
-                    aria-label={`View ${w.name} details`}
-                  />
-                  <span className="pointer-events-none relative z-10 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
+                  <span className="font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
                     {w.category}
                   </span>
-                  <div className="pointer-events-none relative z-10 my-3 h-28 w-full overflow-hidden rounded-xl border border-border/50 bg-[radial-gradient(circle_at_center,theme(colors.secondary/60%),transparent_70%)]">
+                  <div className="relative my-3 h-28 w-full overflow-hidden rounded-xl border border-border/50 bg-[radial-gradient(circle_at_center,theme(colors.secondary/60%),transparent_70%)]">
                     <div className="absolute inset-0 bg-background/40" />
                     <Image
                       src={w.image}
@@ -164,11 +197,11 @@ export function SeasonalCamoExplorer({ camoId }: { camoId: string }) {
                       </div>
                     )}
                   </div>
-                  <h3 className="pointer-events-none relative z-10 text-base font-medium">{w.name}</h3>
+                  <h3 className="text-base font-medium">{w.name}</h3>
 
                   {isMatchesBased ? (
                     <>
-                      <div className="pointer-events-none relative z-20 mt-3">
+                      <div className="mt-3">
                         <div className="flex items-center justify-between text-xs">
                           <span className="font-mono text-gold">
                             {current}/{matchTarget}
@@ -177,7 +210,7 @@ export function SeasonalCamoExplorer({ camoId }: { camoId: string }) {
                         </div>
                         <GoldBar value={matchPct} className="mt-1.5" />
                       </div>
-                      <div className="relative z-20 mt-2 flex items-center gap-1.5">
+                      <div className="mt-2 flex items-center gap-1.5">
                         <button
                           type="button"
                           onClick={() => setMatchProgress(w.id, camoId, current - 1)}
@@ -207,7 +240,7 @@ export function SeasonalCamoExplorer({ camoId }: { camoId: string }) {
                       type="button"
                       onClick={() => toggle(w.id, camoId)}
                       className={cn(
-                        "relative z-20 mt-3 flex items-center justify-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors",
+                        "mt-3 flex items-center justify-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors",
                         owned
                           ? "border-gold/50 bg-gold/15 text-gold"
                           : "border-border/70 bg-secondary/30 text-muted-foreground hover:border-border hover:text-foreground"
