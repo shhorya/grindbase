@@ -74,12 +74,22 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
 
   function setDiamondProgress(value: number) {
     const clamped = Math.max(0, Math.min(value, req.target))
-    updateWeapon(weapon!.id, { diamondProgress: clamped })
-    if (clamped >= req.target && !weapon!.diamond) {
-      updateWeapon(weapon!.id, { diamond: true, gold: true, completion: 100 })
-    } else if (clamped < req.target && weapon!.diamond) {
-      updateWeapon(weapon!.id, { diamond: false })
+    const patch: Record<string, unknown> = { diamondProgress: clamped }
+
+    // Logging any Diamond progress at all means you're already grinding
+    // matches on this weapon — which means it must already be Gold.
+    if (clamped >= 1 && !weapon!.gold) {
+      patch.gold = true
+      patch.completion = 100
     }
+
+    if (clamped >= req.target && !weapon!.diamond) {
+      patch.diamond = true
+    } else if (clamped < req.target && weapon!.diamond) {
+      patch.diamond = false
+    }
+
+    updateWeapon(weapon!.id, patch)
   }
 
   return (
