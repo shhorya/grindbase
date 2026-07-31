@@ -8,8 +8,15 @@ import { useDmzProgress } from "./dmz-store"
 // Nearly every weapon supports both DMZ seasons. These are the only
 // documented exceptions, based on when each gun actually joined the game
 // relative to each DMZ season's timing.
-const DMZ_SEASON_1_EXCLUDED = new Set(["Lachmann-556", "MX Guardian"])
-const DMZ_SEASON_2_EXCLUDED = new Set(["MX Guardian"])
+// Weapons with no DMZ camo access at all (either season).
+const DMZ_NO_ACCESS = ["FSS Hurricane", "BAL-27"]
+
+// Weapons that only have Season 2 camos — too new to have existed for
+// Season 1's release window.
+const DMZ_SEASON_2_ONLY = ["Lachmann-556", "LC10", "DP27", "MX Guardian"]
+
+const DMZ_SEASON_1_EXCLUDED = new Set([...DMZ_NO_ACCESS, ...DMZ_SEASON_2_ONLY])
+const DMZ_SEASON_2_EXCLUDED = new Set(DMZ_NO_ACCESS)
 
 export function useDmzData() {
   const { isOwned, toggle, hydrated } = useDmzProgress()

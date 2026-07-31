@@ -10,8 +10,11 @@ export function useSeasonalData() {
 
   const camoStats = useMemo(() => {
     return SEASONAL_CAMOS.map((camo) => {
+      // The first 10 seasonal camos (Aether Crystal → Assault Pattern) are
+      // available to every weapon regardless of when it joined the game.
+      // Beyond that, eligibility is "the N most recent camos" per weapon.
       const eligibleWeapons = weapons.filter(
-        (w) => camo.order > 36 - w.eligibleSeasonalCamos
+        (w) => camo.order <= 10 || camo.order > 36 - w.eligibleSeasonalCamos
       )
 
       const ownedCount =
