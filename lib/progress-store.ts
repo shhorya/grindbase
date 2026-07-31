@@ -2,9 +2,12 @@
 
 import { useCallback, useSyncExternalStore } from "react"
 import { weapons } from "./weapons"
+import { createClient } from "./supabase/client"
 import type { WeaponProgress } from "./progress"
 
-const STORAGE_KEY = "grindbase-progress"
+// Old local-storage key — only ever read once, to migrate a device's
+// existing progress into the cloud the first time that account syncs.
+const LEGACY_STORAGE_KEY = "grindbase-progress"
 
 function buildDefault(): WeaponProgress[] {
   return weapons.map((weapon) => ({
@@ -19,80 +22,156 @@ function buildDefault(): WeaponProgress[] {
   }))
 }
 
-function loadFromStorage(): WeaponProgress[] {
+function loadLegacyLocalStorage(): WeaponProgress[] | null {
+  if (typeof window === "undefined") return null
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return buildDefault()
-    const parsed: WeaponProgress[] = JSON.parse(raw)
-    const byId = new Map(parsed.map((p) => [p.weaponId, p]))
-    return weapons.map(
-      (weapon) =>
-        byId.get(weapon.id) ?? {
-          weaponId: weapon.id,
-          owned: false,
-          gold: false,
-          platinum: false,
-          diamond: false,
-          completion: 0,
-          matchesRemaining: 0,
-          diamondProgress: 0,
-        }
-    )
+    const raw = localStorage.getItem(LEGACY_STORAGE_KEY)
+    if (!raw) return null
+    return JSON.parse(raw)
   } catch {
-    return buildDefault()
+    return null
   }
 }
 
-// Module-level singleton — every component subscribes to this same state,
-// instead of each holding its own useState copy. This is what keeps
-// /weapons, /damascus, the dashboard, and the nav in sync with each other.
+function toSupabaseRow(userId: string, p: WeaponProgress) {
+  return {
+    user_id: userId,
+    weapon_id: p.weaponId,
+    owned: p.owned,
+    gold: p.gold,
+    platinum: p.platinum,
+    diamond: p.diamond,
+    completion: p.completion,
+    matches_remaining: p.matchesRemaining,
+    diamond_progress: p.diamondProgress,
+    gold_unlocked_at: p.goldUnlockedAt ? new Date(p.goldUnlockedAt).toISOString() : null,
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function fromSupabaseRow(row: any): WeaponProgress {
+  return {
+    weaponId: row.weapon_id,
+    owned: row.owned,
+    gold: row.gold,
+    platinum: row.platinum,
+    diamond: row.diamond,
+    completion: row.completion,
+    matchesRemaining: row.matches_remaining,
+    diamondProgress: row.diamond_progress,
+    goldUnlockedAt: row.gold_unlocked_at ? new Date(row.gold_unlocked_at).getTime() : undefined,
+  }
+}
+
+// One shared piece of data for the whole app — every component reads and
+// writes this same state, now backed by Supabase instead of local storage,
+// so it follows your account across devices.
 let state: WeaponProgress[] = buildDefault()
 let isHydrated = false
+let currentUserId: string | null = null
+let authWired = false
 const listeners = new Set<() => void>()
 
 function emit() {
   listeners.forEach((listener) => listener())
 }
 
-function persist() {
-  if (typeof window === "undefined") return
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
-}
+async function hydrateForUser(userId: string) {
+  const supabase = createClient()
+  const { data, error } = await supabase.from("weapon_progress").select("*").eq("user_id", userId)
 
-function hydrate() {
-  if (isHydrated || typeof window === "undefined") return
-  const loaded = loadFromStorage()
+  if (error) {
+    console.error("Failed to load weapon progress:", error)
+    isHydrated = true
+    emit()
+    return
+  }
 
-  // Enforce: Diamond implies Gold, in case old data predates that rule.
-  let changed = false
-  state = loaded.map((p) => {
-    if (p.diamond && !p.gold) {
-      changed = true
-      return { ...p, gold: true, completion: 100 }
+  const defaults = buildDefault()
+
+  if (data && data.length > 0) {
+    // Cloud already has data for this account — use it as the source of
+    // truth. Any weapon not yet in the cloud just stays at its default.
+    const byId = new Map(data.map((row) => [row.weapon_id, fromSupabaseRow(row)]))
+    state = weapons.map((w) => byId.get(w.id) ?? defaults.find((p) => p.weaponId === w.id)!)
+  } else {
+    // First time this account has ever synced. Check this browser's local
+    // storage for existing progress and upload it once, so nothing already
+    // tracked gets lost.
+    const legacy = loadLegacyLocalStorage()
+    if (legacy && legacy.length > 0) {
+      state = weapons.map(
+        (w) => legacy.find((p) => p.weaponId === w.id) ?? defaults.find((p) => p.weaponId === w.id)!
+      )
+      const rows = state.map((p) => toSupabaseRow(userId, p))
+      const { error: upsertError } = await supabase
+        .from("weapon_progress")
+        .upsert(rows, { onConflict: "user_id,weapon_id" })
+      if (upsertError) console.error("Failed to migrate local progress to the cloud:", upsertError)
+    } else {
+      state = defaults
     }
-    return p
-  })
+  }
+
   isHydrated = true
-  if (changed) persist()
   emit()
 }
 
-function updateWeaponInStore(weaponId: string, patch: Partial<WeaponProgress>) {
-  // Record exactly when a weapon crosses into Gold, so "recently unlocked"
-  // can be based on real time instead of guesswork. Only stamps on the
-  // transition to true — toggling gold off doesn't erase the record.
+function ensureAuthWired() {
+  if (authWired || typeof window === "undefined") return
+  authWired = true
+  const supabase = createClient()
+
+  supabase.auth.getUser().then(({ data }) => {
+    const uid = data.user?.id ?? null
+    if (uid) {
+      currentUserId = uid
+      hydrateForUser(uid)
+    } else {
+      isHydrated = true
+      emit()
+    }
+  })
+
+  supabase.auth.onAuthStateChange((_event, session) => {
+    const uid = session?.user?.id ?? null
+    if (uid && uid !== currentUserId) {
+      currentUserId = uid
+      isHydrated = false
+      hydrateForUser(uid)
+    } else if (!uid && currentUserId) {
+      currentUserId = null
+      state = buildDefault()
+      isHydrated = true
+      emit()
+    }
+  })
+}
+
+async function updateWeaponInStore(weaponId: string, patch: Partial<WeaponProgress>) {
   const finalPatch: Partial<WeaponProgress> = { ...patch }
   if (patch.gold === true) {
-    ;(finalPatch as Partial<WeaponProgress> & { goldUnlockedAt?: number }).goldUnlockedAt = Date.now()
+    finalPatch.goldUnlockedAt = Date.now()
   }
+
+  // Update local state instantly for a responsive UI, then persist.
   state = state.map((p) => (p.weaponId === weaponId ? { ...p, ...finalPatch } : p))
-  persist()
   emit()
+
+  if (!currentUserId) return
+  const supabase = createClient()
+  const updated = state.find((p) => p.weaponId === weaponId)
+  if (!updated) return
+
+  const { error } = await supabase
+    .from("weapon_progress")
+    .upsert(toSupabaseRow(currentUserId, updated), { onConflict: "user_id,weapon_id" })
+  if (error) console.error("Failed to save weapon progress:", error)
 }
 
 function subscribe(listener: () => void) {
   listeners.add(listener)
-  hydrate()
+  ensureAuthWired()
   return () => listeners.delete(listener)
 }
 
