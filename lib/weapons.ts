@@ -355,7 +355,7 @@ export const weapons: Weapon[] = [
     eligibleSeasonalCamos: 36,
   },
   {
-    id: "3-line rifle",
+    id: "3-line-rifle",
     name: "3-Line Rifle",
     category: "Sniper",
     image: "/weapons/sniper/3-line-rifle.webp",
@@ -823,10 +823,10 @@ export const weapons: Weapon[] = [
     eligibleSeasonalCamos: 36,
   },
   {
-    id: "s0-14",
-    name: "S0-14",
+    id: "so-14",
+    name: "SO-14",
     category: "Marksman",
-    image: "/weapons/marksman/s0-14.webp",
+    image: "/weapons/marksman/so-14.webp",
     eligibleSeasonalCamos: 36,
   },
 
