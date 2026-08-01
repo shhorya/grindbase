@@ -375,7 +375,7 @@ export function DashboardContent() {
           </div>
 
           {/* Recommended Grind — tall block, matches the combined height of the two stacked cards */}
-          <div className="relative flex flex-col overflow-hidden rounded-2xl border border-diamond/25 glass p-6 glow-diamond-sm lg:w-80 lg:shrink-0">
+          <div className="relative flex max-h-[600px] min-h-0 flex-col overflow-hidden rounded-2xl border border-diamond/25 glass p-6 glow-diamond-sm lg:max-h-none lg:w-80 lg:shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Gem className="size-4 text-diamond" />
@@ -392,7 +392,7 @@ export function DashboardContent() {
               Closest weapons to Diamond
             </p>
             <div
-              className="mt-5 flex-1 space-y-3 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+              className="mt-5 min-h-0 flex-1 space-y-3 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
             >
               {grinds.length === 0 && (
                 <p className="text-sm text-muted-foreground">
