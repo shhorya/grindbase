@@ -375,7 +375,7 @@ export function DashboardContent() {
           </div>
 
           {/* Recommended Grind — tall block, matches the combined height of the two stacked cards */}
-          <div className="relative flex h-[785px] flex-col overflow-hidden rounded-2xl border border-diamond/25 glass p-6 glow-diamond-sm lg:w-80 lg:shrink-0">
+          <div className="relative flex h-[783px] flex-col overflow-hidden rounded-2xl border border-diamond/25 glass p-6 glow-diamond-sm lg:w-80 lg:shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Gem className="size-4 text-diamond" />
