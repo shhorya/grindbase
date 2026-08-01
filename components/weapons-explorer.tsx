@@ -137,8 +137,8 @@ export function WeaponsExplorer({
     updateWeapon(weaponId, { diamondProgress: Math.max(0, value) })
 
     // Auto-unlock diamond when target reached
-    import("@/lib/constants").then(({ DIAMOND_REQUIREMENTS }) => {
-      const target = DIAMOND_REQUIREMENTS[weapon.category].target
+    import("@/lib/constants").then(({ getDiamondRequirement }) => {
+      const target = getDiamondRequirement(weapon).target
       if (value >= target && !weapon.diamond) {
         handleToggleField(weaponId, "diamond")
       }

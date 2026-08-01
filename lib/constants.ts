@@ -74,3 +74,15 @@ export function getDiamondRequirementLabel(category: WeaponCategory) {
     ? `Destroy ${req.target} ${req.unitLabel}`
     : `${req.target} ${req.unitLabel}`
 }
+
+// Most weapons follow their category's default Diamond requirement (see
+// DIAMOND_REQUIREMENTS above), but a few individual weapons deviate from
+// that and need their own explicit rule.
+export const DIAMOND_REQUIREMENT_OVERRIDES: Partial<Record<string, DiamondRequirement>> = {
+  "D13 Sector": { type: "matches", target: 100, unitLabel: "matches (10 kills each)" },
+  "Thumper": { type: "matches", target: 100, unitLabel: "matches (10 kills each)" },
+}
+
+export function getDiamondRequirement(weapon: { name: string; category: WeaponCategory }): DiamondRequirement {
+  return DIAMOND_REQUIREMENT_OVERRIDES[weapon.name] ?? DIAMOND_REQUIREMENTS[weapon.category]
+}

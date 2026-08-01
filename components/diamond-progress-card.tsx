@@ -4,7 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Minus, Plus } from "lucide-react"
 import { GoldBar } from "@/components/gold-bar"
-import { DIAMOND_REQUIREMENTS } from "@/lib/constants"
+import { getDiamondRequirement } from "@/lib/constants"
 import type { CompleteWeapon } from "@/lib/use-camo-data"
 
 export function DiamondProgressCard({
@@ -14,7 +14,7 @@ export function DiamondProgressCard({
   weapon: CompleteWeapon
   onProgressChange: (weaponId: string, value: number) => void
 }) {
-  const req = DIAMOND_REQUIREMENTS[weapon.category]
+  const req = getDiamondRequirement(weapon)
   const current = Math.min(weapon.diamondProgress ?? 0, req.target)
   const pct = req.target > 0 ? Math.round((current / req.target) * 100) : 0
 
@@ -29,12 +29,11 @@ export function DiamondProgressCard({
         className="absolute inset-0 z-0"
         aria-label={`View ${weapon.name} details`}
       />
-
-      <span className="pointer-events-none relative z-10 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
+      <span className="font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
         {weapon.category}
       </span>
 
-      <div className="pointer-events-none relative z-10 my-3 h-28 w-full overflow-hidden rounded-xl border border-border/50 bg-[radial-gradient(circle_at_center,theme(colors.secondary/60%),transparent_70%)]">
+      <div className="relative my-3 h-28 w-full overflow-hidden rounded-xl border border-border/50 bg-[radial-gradient(circle_at_center,theme(colors.secondary/60%),transparent_70%)]">
         <div className="absolute inset-0 bg-background/40" />
         <Image
           src={weapon.image}
@@ -44,14 +43,14 @@ export function DiamondProgressCard({
         />
       </div>
 
-      <h3 className="pointer-events-none relative z-10 text-base font-medium">{weapon.name}</h3>
-      <p className="pointer-events-none relative z-10 mt-0.5 text-xs text-muted-foreground">
+      <h3 className="text-base font-medium">{weapon.name}</h3>
+      <p className="mt-0.5 text-xs text-muted-foreground">
         {req.type === "objective"
           ? `Destroy ${req.target} ${req.unitLabel}`
           : `${req.target} ${req.unitLabel} required`}
       </p>
 
-      <div className="pointer-events-none relative z-10 mt-3">
+      <div className="mt-3">
         <div className="flex items-center justify-between text-sm">
           <span className="font-mono text-diamond">
             {current}/{req.target}
@@ -61,7 +60,7 @@ export function DiamondProgressCard({
         <GoldBar value={pct} tone="diamond" className="mt-1.5" />
       </div>
 
-      <div className="relative z-20 mt-3 flex items-center gap-2">
+      <div className="relative z-10 mt-3 flex items-center gap-2">
         <button
           type="button"
           onClick={() => adjust(-1)}

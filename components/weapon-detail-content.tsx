@@ -10,7 +10,7 @@ import { useCamoData } from "@/lib/use-camo-data"
 import { useSeasonalData } from "@/lib/use-seasonal-data"
 import { useDmzData } from "@/lib/use-dmz-data"
 import { getDmzDisplayName } from "@/lib/dmz-camos"
-import { DIAMOND_REQUIREMENTS } from "@/lib/constants"
+import { getDiamondRequirement } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 
 export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
@@ -21,7 +21,7 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
   const weapon = weapons.find((w) => w.id === weaponId)
   if (!weapon) return null
 
-  const req = DIAMOND_REQUIREMENTS[weapon.category]
+  const req = getDiamondRequirement(weapon)
   const diamondCurrent = Math.min(weapon.diamondProgress ?? 0, req.target)
   const diamondPct = req.target > 0 ? Math.round((diamondCurrent / req.target) * 100) : 0
 

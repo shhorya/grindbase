@@ -1,11 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import {
   ArrowRight,
   Award,
+  ChevronLeft,
+  ChevronRight,
   Diamond,
   Flame,
   Gem,
@@ -18,7 +20,7 @@ import { CircularProgress } from "@/components/circular-progress"
 import { GoldBar } from "@/components/gold-bar"
 import { Button } from "@/components/ui/button"
 import { categories, categoryProgress } from "@/lib/data"
-import { CATEGORY_SHOWCASE_WEAPON, DIAMOND_REQUIREMENTS } from "@/lib/constants"
+import { CATEGORY_SHOWCASE_WEAPON } from "@/lib/constants"
 import {
   Select,
   SelectContent,
@@ -35,25 +37,10 @@ import { useStarredCamo } from "@/lib/starred-camo-store"
 import { useStarredDmzCamo } from "@/lib/starred-dmz-camo-store"
 import { cn } from "@/lib/utils"
 
-function grindRemainingLabel(category: keyof typeof DIAMOND_REQUIREMENTS, remaining: number) {
-  const req = DIAMOND_REQUIREMENTS[category]
-  if (req.type === "kills") return `~${remaining} kills left`
-  if (req.type === "objective") return `~${remaining} UAVs left to destroy`
-  return `~${remaining} matches left`
-}
-
 export function DashboardContent() {
   const { weapons, stats } = useCamoData()
   const [totalView, setTotalView] = useState<"gold" | "diamond">("gold")
-  const grinds = [...weapons]
-    .filter((w) => !w.diamond)
-    .map((w) => {
-      const target = DIAMOND_REQUIREMENTS[w.category].target
-      const current = Math.min(w.diamondProgress ?? 0, target)
-      const diamondPct = target > 0 ? Math.round((current / target) * 100) : 0
-      return { ...w, diamondPct, diamondRemaining: Math.max(0, target - current) }
-    })
-    .sort((a, b) => b.diamondPct - a.diamondPct)
+  const grinds = getRecommendedGrinds(weapons, weapons.length)
   const { camoStats } = useSeasonalData()
   const { camoStats: dmzCamoStats } = useDmzData()
   const dmzOwned = dmzCamoStats.reduce((sum, c) => sum + c.ownedCount, 0)
@@ -277,9 +264,7 @@ export function DashboardContent() {
                 </div>
               )}
 
-              <div
-                className="mt-6 flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-              >
+              <ScrollableRow>
                 {allSeasonal.map((c) => {
                   const p = c.totalEligible > 0 ? Math.round((c.ownedCount / c.totalEligible) * 100) : 0
                   return (
@@ -301,7 +286,7 @@ export function DashboardContent() {
                     </Link>
                   )
                 })}
-              </div>
+              </ScrollableRow>
             </div>
 
             {/* DMZ Recon Camos — same structure and size as Seasonal above */}
@@ -354,9 +339,7 @@ export function DashboardContent() {
                 </div>
               )}
 
-              <div
-                className="mt-6 flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-              >
+              <ScrollableRow>
                 {allDmz.map((c) => {
                   const p = c.totalEligible > 0 ? Math.round((c.ownedCount / c.totalEligible) * 100) : 0
                   return (
@@ -378,20 +361,20 @@ export function DashboardContent() {
                     </Link>
                   )
                 })}
-              </div>
+              </ScrollableRow>
             </div>
           </div>
 
           {/* Recommended Grind — tall block, matches the combined height of the two stacked cards */}
-          <div className="relative flex h-[778px] flex-col overflow-hidden rounded-2xl border border-diamond/25 glass p-6 glow-diamond-sm lg:w-80 lg:shrink-0">
+          <div className="relative flex flex-col overflow-hidden rounded-2xl border border-gold/25 glass p-6 glow-gold-sm lg:w-80 lg:shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Gem className="size-4 text-diamond" />
+                <Gem className="size-4 text-gold" />
                 <h2 className="text-lg font-medium">Recommended Grind</h2>
               </div>
               <Link
                 href="/weapons?status=closest-diamond"
-                className="text-xs text-diamond hover:underline"
+                className="text-xs text-gold hover:underline"
               >
                 View all
               </Link>
@@ -400,7 +383,7 @@ export function DashboardContent() {
               Closest weapons to Diamond
             </p>
             <div
-              className="mt-5 min-h-0 flex-1 space-y-3 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+              className="mt-5 flex-1 space-y-3 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
             >
               {grinds.length === 0 && (
                 <p className="text-sm text-muted-foreground">
@@ -411,7 +394,7 @@ export function DashboardContent() {
                 <Link
                   key={w.id}
                   href={`/weapons/${w.id}`}
-                  className="group flex items-center gap-3 rounded-xl border border-border/60 bg-secondary/30 p-3 transition-colors hover:border-diamond/40 hover:bg-secondary/60"
+                  className="group flex items-center gap-3 rounded-xl border border-border/60 bg-secondary/30 p-3 transition-colors hover:border-gold/40 hover:bg-secondary/60"
                 >
                   <div className="relative h-10 w-16 shrink-0">
                     <Image src={w.image} alt={w.name} fill className="object-contain" />
@@ -419,11 +402,11 @@ export function DashboardContent() {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between">
                       <span className="truncate text-sm font-medium">{w.name}</span>
-                      <span className="font-mono text-xs text-diamond">{w.diamondPct}%</span>
+                      <span className="font-mono text-xs text-gold">{w.completion}%</span>
                     </div>
-                    <GoldBar value={w.diamondPct} tone="diamond" className="mt-1.5" />
+                    <GoldBar value={w.completion} className="mt-1.5" />
                     <span className="mt-1.5 block text-[11px] text-muted-foreground">
-                      {grindRemainingLabel(w.category, w.diamondRemaining)}
+                      ~{w.matchesRemaining} matches left
                     </span>
                   </div>
                 </Link>
@@ -484,6 +467,50 @@ export function DashboardContent() {
           </div>
         </div>
       </main>
+    </div>
+  )
+}
+
+function ScrollableRow({ children }: { children: React.ReactNode }) {
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [showLeft, setShowLeft] = useState(false)
+  const CARD_WIDTH = 172 // w-40 (160px) card + gap-3 (12px)
+
+  function handleScroll() {
+    if (scrollRef.current) setShowLeft(scrollRef.current.scrollLeft > 10)
+  }
+
+  function scrollByCards(direction: 1 | -1) {
+    scrollRef.current?.scrollBy({ left: direction * CARD_WIDTH * 3, behavior: "smooth" })
+  }
+
+  return (
+    <div className="relative mt-6">
+      {showLeft && (
+        <button
+          type="button"
+          onClick={() => scrollByCards(-1)}
+          className="absolute left-1 top-1/2 z-10 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-border/60 bg-background/50 text-foreground backdrop-blur-md transition-colors hover:bg-background/80"
+          aria-label="Scroll left"
+        >
+          <ChevronLeft className="size-4" />
+        </button>
+      )}
+      <div
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {children}
+      </div>
+      <button
+        type="button"
+        onClick={() => scrollByCards(1)}
+        className="absolute right-1 top-1/2 z-10 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-border/60 bg-background/50 text-foreground backdrop-blur-md transition-colors hover:bg-background/80"
+        aria-label="Scroll right"
+      >
+        <ChevronRight className="size-4" />
+      </button>
     </div>
   )
 }
