@@ -20,7 +20,8 @@ import { CircularProgress } from "@/components/circular-progress"
 import { GoldBar } from "@/components/gold-bar"
 import { Button } from "@/components/ui/button"
 import { categories, categoryProgress } from "@/lib/data"
-import { CATEGORY_SHOWCASE_WEAPON } from "@/lib/constants"
+import { CATEGORY_SHOWCASE_WEAPON, getDiamondRequirement } from "@/lib/constants"
+import type { DiamondRequirement } from "@/lib/constants"
 import {
   Select,
   SelectContent,
@@ -28,7 +29,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { getRecommendedGrinds } from "@/lib/calculations"
 import { useCamoData } from "@/lib/use-camo-data"
 import { useSeasonalData } from "@/lib/use-seasonal-data"
 import { useDmzData } from "@/lib/use-dmz-data"
@@ -40,7 +40,16 @@ import { cn } from "@/lib/utils"
 export function DashboardContent() {
   const { weapons, stats } = useCamoData()
   const [totalView, setTotalView] = useState<"gold" | "diamond">("gold")
-  const grinds = getRecommendedGrinds(weapons, weapons.length)
+  const grinds = weapons
+    .filter((w) => !w.diamond)
+    .map((w) => {
+      const req = getDiamondRequirement(w)
+      const target = req.target
+      const current = Math.min(w.diamondProgress ?? 0, target)
+      const diamondPct = target > 0 ? Math.round((current / target) * 100) : 0
+      return { ...w, diamondPct, diamondRemaining: Math.max(0, target - current), diamondReq: req }
+    })
+    .sort((a, b) => b.diamondPct - a.diamondPct)
   const { camoStats } = useSeasonalData()
   const { camoStats: dmzCamoStats } = useDmzData()
   const dmzOwned = dmzCamoStats.reduce((sum, c) => sum + c.ownedCount, 0)
@@ -366,15 +375,15 @@ export function DashboardContent() {
           </div>
 
           {/* Recommended Grind — tall block, matches the combined height of the two stacked cards */}
-          <div className="relative flex flex-col overflow-hidden rounded-2xl border border-gold/25 glass p-6 glow-gold-sm lg:w-80 lg:shrink-0">
+          <div className="relative flex flex-col overflow-hidden rounded-2xl border border-diamond/25 glass p-6 glow-diamond-sm lg:w-80 lg:shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Gem className="size-4 text-gold" />
+                <Gem className="size-4 text-diamond" />
                 <h2 className="text-lg font-medium">Recommended Grind</h2>
               </div>
               <Link
                 href="/weapons?status=closest-diamond"
-                className="text-xs text-gold hover:underline"
+                className="text-xs text-diamond hover:underline"
               >
                 View all
               </Link>
@@ -387,14 +396,14 @@ export function DashboardContent() {
             >
               {grinds.length === 0 && (
                 <p className="text-sm text-muted-foreground">
-                  Unlock some Gold camos in Arsenal to see grind suggestions here.
+                  Every weapon is already Diamond — nothing left to grind here.
                 </p>
               )}
               {grinds.map((w) => (
                 <Link
                   key={w.id}
                   href={`/weapons/${w.id}`}
-                  className="group flex items-center gap-3 rounded-xl border border-border/60 bg-secondary/30 p-3 transition-colors hover:border-gold/40 hover:bg-secondary/60"
+                  className="group flex items-center gap-3 rounded-xl border border-border/60 bg-secondary/30 p-3 transition-colors hover:border-diamond/40 hover:bg-secondary/60"
                 >
                   <div className="relative h-10 w-16 shrink-0">
                     <Image src={w.image} alt={w.name} fill className="object-contain" />
@@ -402,11 +411,11 @@ export function DashboardContent() {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between">
                       <span className="truncate text-sm font-medium">{w.name}</span>
-                      <span className="font-mono text-xs text-gold">{w.completion}%</span>
+                      <span className="font-mono text-xs text-diamond">{w.diamondPct}%</span>
                     </div>
-                    <GoldBar value={w.completion} className="mt-1.5" />
+                    <GoldBar value={w.diamondPct} tone="diamond" className="mt-1.5" />
                     <span className="mt-1.5 block text-[11px] text-muted-foreground">
-                      ~{w.matchesRemaining} matches left
+                      {grindRemainingLabel(w.diamondReq, w.diamondRemaining)}
                     </span>
                   </div>
                 </Link>
@@ -513,4 +522,10 @@ function ScrollableRow({ children }: { children: React.ReactNode }) {
       </button>
     </div>
   )
+}
+
+function grindRemainingLabel(req: DiamondRequirement, remaining: number) {
+  if (req.type === "kills") return `~${remaining} kills left`
+  if (req.type === "objective") return `~${remaining} UAVs left to destroy`
+  return `~${remaining} matches left`
 }
