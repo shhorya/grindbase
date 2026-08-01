@@ -156,6 +156,32 @@ async function toggleInStore(weaponId: string, camoId: string) {
   await persistRow(weaponId, camoId)
 }
 
+// Used for bulk actions like "Select All" — sends every change as ONE
+// request instead of one request per weapon, so a big bulk action can't
+// flood the network with dozens of simultaneous saves.
+async function setManyOwnedInStore(weaponIds: string[], camoId: string, owned: boolean) {
+  const nextProgress = { ...state.progress }
+  weaponIds.forEach((weaponId) => {
+    nextProgress[key(weaponId, camoId)] = owned
+  })
+  state = { ...state, progress: nextProgress }
+  emit()
+
+  if (!currentUserId) return
+  const supabase = createClient()
+  const rows = weaponIds.map((weaponId) => ({
+    user_id: currentUserId,
+    weapon_id: weaponId,
+    camo_id: camoId,
+    owned,
+    matches: state.matchProgress[key(weaponId, camoId)] ?? 0,
+  }))
+  const { error } = await supabase
+    .from("seasonal_progress")
+    .upsert(rows, { onConflict: "user_id,weapon_id,camo_id" })
+  if (error) console.error("Failed to bulk-save seasonal progress:", error)
+}
+
 async function setMatchProgressInStore(weaponId: string, camoId: string, value: number) {
   const k = key(weaponId, camoId)
   state = { ...state, matchProgress: { ...state.matchProgress, [k]: Math.max(0, value) } }
@@ -189,6 +215,10 @@ export function useSeasonalProgress() {
     toggleInStore(weaponId, camoId)
   }, [])
 
+  const setManyOwned = useCallback((weaponIds: string[], camoId: string, owned: boolean) => {
+    setManyOwnedInStore(weaponIds, camoId, owned)
+  }, [])
+
   const getMatchProgress = useCallback(
     (weaponId: string, camoId: string) => matchProgress[key(weaponId, camoId)] ?? 0,
     [matchProgress]
@@ -198,5 +228,5 @@ export function useSeasonalProgress() {
     setMatchProgressInStore(weaponId, camoId, value)
   }, [])
 
-  return { progress, isOwned, toggle, hydrated: isHydrated, getMatchProgress, setMatchProgress }
+  return { progress, isOwned, toggle, setManyOwned, hydrated: isHydrated, getMatchProgress, setMatchProgress }
 }

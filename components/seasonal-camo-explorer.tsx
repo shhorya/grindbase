@@ -26,7 +26,7 @@ const CATEGORIES: WeaponCategory[] = [
 ]
 
 export function SeasonalCamoExplorer({ camoId }: { camoId: string }) {
-  const { camoStats, isOwned, toggle, getMatchProgress, setMatchProgress } = useSeasonalData()
+  const { camoStats, isOwned, toggle, setManyOwned, getMatchProgress, setMatchProgress } = useSeasonalData()
   const [filter, setFilter] = useState<Filter>("owned")
   const [category, setCategory] = useState<WeaponCategory | "all">("all")
   const [query, setQuery] = useState("")
@@ -60,11 +60,11 @@ export function SeasonalCamoExplorer({ camoId }: { camoId: string }) {
 
   function handleSelectAll() {
     const anyUnowned = filtered.some((w) => !isOwned(w.id, camoId))
-    filtered.forEach((w) => {
-      const owned = isOwned(w.id, camoId)
-      if (anyUnowned && !owned) toggle(w.id, camoId)
-      if (!anyUnowned && owned) toggle(w.id, camoId)
-    })
+    setManyOwned(
+      filtered.map((w) => w.id),
+      camoId,
+      anyUnowned
+    )
   }
 
   if (!camo) return null
