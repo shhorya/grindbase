@@ -835,17 +835,17 @@ export const weapons: Weapon[] = [
   // =========================
 
   {
-    id: "mw11",
-    name: "MW11",
-    category: "Pistol",
-    image: "/weapons/pistol/mw11.webp",
-    eligibleSeasonalCamos: 36,
-  },
-  {
     id: "j358",
     name: "J358",
     category: "Pistol",
     image: "/weapons/pistol/j358.webp",
+    eligibleSeasonalCamos: 36,
+  },
+  {
+    id: "mw11",
+    name: "MW11",
+    category: "Pistol",
+    image: "/weapons/pistol/mw11.webp",
     eligibleSeasonalCamos: 36,
   },
   {
