@@ -10,6 +10,9 @@ import { createClient } from "./supabase/client"
 const LEGACY_SEASONAL_KEY = "grindbase-starred-camo"
 const LEGACY_DMZ_KEY = "grindbase-starred-dmz-camo"
 
+type SupabaseClient = ReturnType<typeof createClient>
+type RealtimeChannel = ReturnType<SupabaseClient["channel"]>
+
 type Store = {
   seasonalId: string | null
   dmzId: string | null
@@ -19,6 +22,7 @@ let state: Store = { seasonalId: null, dmzId: null }
 let isHydrated = false
 let currentUserId: string | null = null
 let authWired = false
+let realtimeChannel: RealtimeChannel | null = null
 const listeners = new Set<() => void>()
 
 function emit() {
@@ -64,6 +68,41 @@ async function hydrateForUser(userId: string) {
   emit()
 }
 
+function unsubscribeRealtime() {
+  if (!realtimeChannel) return
+  const supabase = createClient()
+  supabase.removeChannel(realtimeChannel)
+  realtimeChannel = null
+}
+
+// Keeps every open tab/device on this account in sync: any change written to
+// starred_camos — by this tab, another tab, or another device — gets pushed
+// back down here and merged into local state. Requires Realtime to be
+// turned on for starred_camos in Supabase (Database → Publications).
+function subscribeRealtime(userId: string) {
+  unsubscribeRealtime()
+  const supabase = createClient()
+  realtimeChannel = supabase
+    .channel(`starred_camos_${userId}`)
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "starred_camos", filter: `user_id=eq.${userId}` },
+      (payload) => {
+        // It's one row per user, so DELETE just means "back to nothing starred".
+        if (payload.eventType === "DELETE") {
+          state = { seasonalId: null, dmzId: null }
+          emit()
+          return
+        }
+        const row = payload.new
+        if (!row || !("user_id" in row)) return
+        state = { seasonalId: row.seasonal_camo_id ?? null, dmzId: row.dmz_camo_id ?? null }
+        emit()
+      }
+    )
+    .subscribe()
+}
+
 function ensureAuthWired() {
   if (authWired || typeof window === "undefined") return
   authWired = true
@@ -74,6 +113,7 @@ function ensureAuthWired() {
     if (uid) {
       currentUserId = uid
       hydrateForUser(uid)
+      subscribeRealtime(uid)
     } else {
       isHydrated = true
       emit()
@@ -86,10 +126,12 @@ function ensureAuthWired() {
       currentUserId = uid
       isHydrated = false
       hydrateForUser(uid)
+      subscribeRealtime(uid)
     } else if (!uid && currentUserId) {
       currentUserId = null
       state = { seasonalId: null, dmzId: null }
       isHydrated = true
+      unsubscribeRealtime()
       emit()
     }
   })

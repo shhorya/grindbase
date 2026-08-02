@@ -5,6 +5,9 @@ import { createClient } from "./supabase/client"
 
 const LEGACY_KEY = "grindbase-dmz-progress"
 
+type SupabaseClient = ReturnType<typeof createClient>
+type RealtimeChannel = ReturnType<SupabaseClient["channel"]>
+
 function key(weaponId: string, camoId: string) {
   return `${weaponId}:${camoId}`
 }
@@ -27,6 +30,7 @@ let state: Record<string, boolean> = {}
 let isHydrated = false
 let currentUserId: string | null = null
 let authWired = false
+let realtimeChannel: RealtimeChannel | null = null
 const listeners = new Set<() => void>()
 
 function emit() {
@@ -71,6 +75,36 @@ async function hydrateForUser(userId: string) {
   emit()
 }
 
+function unsubscribeRealtime() {
+  if (!realtimeChannel) return
+  const supabase = createClient()
+  supabase.removeChannel(realtimeChannel)
+  realtimeChannel = null
+}
+
+// Keeps every open tab/device on this account in sync: any change written to
+// dmz_progress — by this tab, another tab, or another device — gets pushed
+// back down here and merged into local state. Requires Realtime to be
+// turned on for dmz_progress in Supabase (Database → Replication).
+function subscribeRealtime(userId: string) {
+  unsubscribeRealtime()
+  const supabase = createClient()
+  realtimeChannel = supabase
+    .channel(`dmz_progress_${userId}`)
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "dmz_progress", filter: `user_id=eq.${userId}` },
+      (payload) => {
+        const row = payload.eventType === "DELETE" ? payload.old : payload.new
+        if (!row || !("weapon_id" in row) || !("camo_id" in row)) return
+        const k = key(row.weapon_id, row.camo_id)
+        state = { ...state, [k]: row.owned ?? false }
+        emit()
+      }
+    )
+    .subscribe()
+}
+
 function ensureAuthWired() {
   if (authWired || typeof window === "undefined") return
   authWired = true
@@ -81,6 +115,7 @@ function ensureAuthWired() {
     if (uid) {
       currentUserId = uid
       hydrateForUser(uid)
+      subscribeRealtime(uid)
     } else {
       isHydrated = true
       emit()
@@ -93,10 +128,12 @@ function ensureAuthWired() {
       currentUserId = uid
       isHydrated = false
       hydrateForUser(uid)
+      subscribeRealtime(uid)
     } else if (!uid && currentUserId) {
       currentUserId = null
       state = {}
       isHydrated = true
+      unsubscribeRealtime()
       emit()
     }
   })

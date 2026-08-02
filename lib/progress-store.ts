@@ -9,6 +9,9 @@ import type { WeaponProgress } from "./progress"
 // existing progress into the cloud the first time that account syncs.
 const LEGACY_STORAGE_KEY = "grindbase-progress"
 
+type SupabaseClient = ReturnType<typeof createClient>
+type RealtimeChannel = ReturnType<SupabaseClient["channel"]>
+
 function buildDefault(): WeaponProgress[] {
   return weapons.map((weapon) => ({
     weaponId: weapon.id,
@@ -70,6 +73,7 @@ let state: WeaponProgress[] = buildDefault()
 let isHydrated = false
 let currentUserId: string | null = null
 let authWired = false
+let realtimeChannel: RealtimeChannel | null = null
 const listeners = new Set<() => void>()
 
 function emit() {
@@ -117,6 +121,38 @@ async function hydrateForUser(userId: string) {
   emit()
 }
 
+function unsubscribeRealtime() {
+  if (!realtimeChannel) return
+  const supabase = createClient()
+  supabase.removeChannel(realtimeChannel)
+  realtimeChannel = null
+}
+
+// Keeps every open tab/device on this account in sync: any change written to
+// weapon_progress — by this tab, another tab, or another device — gets
+// pushed back down here and merged into local state. Requires Realtime to
+// be turned on for weapon_progress in Supabase (Database → Replication).
+function subscribeRealtime(userId: string) {
+  unsubscribeRealtime()
+  const supabase = createClient()
+  realtimeChannel = supabase
+    .channel(`weapon_progress_${userId}`)
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "weapon_progress", filter: `user_id=eq.${userId}` },
+      (payload) => {
+        // For DELETE, .new is empty — fall back to .old. For INSERT/UPDATE,
+        // .new always has the row we want.
+        const row = payload.eventType === "DELETE" ? payload.old : payload.new
+        if (!row || !("weapon_id" in row)) return
+        const updated = fromSupabaseRow(row)
+        state = state.map((p) => (p.weaponId === updated.weaponId ? updated : p))
+        emit()
+      }
+    )
+    .subscribe()
+}
+
 function ensureAuthWired() {
   if (authWired || typeof window === "undefined") return
   authWired = true
@@ -127,6 +163,7 @@ function ensureAuthWired() {
     if (uid) {
       currentUserId = uid
       hydrateForUser(uid)
+      subscribeRealtime(uid)
     } else {
       isHydrated = true
       emit()
@@ -139,10 +176,12 @@ function ensureAuthWired() {
       currentUserId = uid
       isHydrated = false
       hydrateForUser(uid)
+      subscribeRealtime(uid)
     } else if (!uid && currentUserId) {
       currentUserId = null
       state = buildDefault()
       isHydrated = true
+      unsubscribeRealtime()
       emit()
     }
   })
