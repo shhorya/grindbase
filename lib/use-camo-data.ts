@@ -6,7 +6,6 @@ import {
   getDiamondCount,
   getGoldCount,
   getOverallCompletion,
-  getPlatinumCount,
   hasDamascus,
 } from "./calculations"
 import { weapons as staticWeapons } from "./weapons"
@@ -29,22 +28,25 @@ export function useCamoData() {
     [progress]
   )
 
-  const stats = useMemo(
-    () => ({
+  const stats = useMemo(() => {
+    // These few are computed directly here rather than through
+    // calculations.ts, so they need their own noCamos filter too.
+    const tracked = weapons.filter((w) => !w.noCamos)
+
+    return {
       totalCompletion: getOverallCompletion(weapons),
-      weaponsOwned: weapons.filter((w) => w.owned).length,
-      weaponsTotal: weapons.length,
+      weaponsOwned: tracked.filter((w) => w.owned).length,
+      weaponsTotal: tracked.length,
       goldCount: getGoldCount(weapons),
-      platinumCount: weapons.filter((w) => w.platinum).length,
+      platinumCount: tracked.filter((w) => w.platinum).length,
       diamondCount: getDiamondCount(weapons),
       damascusUnlocked: hasDamascus(weapons, CATEGORIES),
       seasonalOwned: 0,
       seasonalTotal: 0,
       seasonalCompletion: 0,
-      matchesRemaining: weapons.reduce((s, w) => s + w.matchesRemaining, 0),
-    }),
-    [weapons]
-  )
+      matchesRemaining: tracked.reduce((s, w) => s + w.matchesRemaining, 0),
+    }
+  }, [weapons])
 
   return { weapons, stats, updateWeapon, hydrated }
 }

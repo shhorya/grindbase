@@ -21,6 +21,43 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
   const weapon = weapons.find((w) => w.id === weaponId)
   if (!weapon) return null
 
+  if (weapon.noCamos) {
+    return (
+      <div className="min-h-screen bg-hud-grid">
+        <HudNav />
+        <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+          <Link
+            href="/weapons"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="size-4" />
+            Back to Arsenal
+          </Link>
+
+          <div className="hud-corner mt-4 flex flex-col gap-6 rounded-3xl border border-border/70 glass-strong p-6 sm:flex-row sm:items-center sm:p-8">
+            <div className="relative h-40 w-full shrink-0 overflow-hidden rounded-2xl border border-border/50 bg-[radial-gradient(circle_at_center,theme(colors.secondary/60%),transparent_70%)] sm:h-44 sm:w-64">
+              <div className="absolute inset-0 bg-background/40" />
+              <Image src={weapon.image} alt={weapon.name} fill className="relative object-contain p-4" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <span className="font-mono text-xs tracking-[0.25em] text-muted-foreground">
+                {weapon.category.toUpperCase()}
+              </span>
+              <h1 className="mt-1 text-4xl font-bold tracking-tight sm:text-5xl">{weapon.name}</h1>
+            </div>
+          </div>
+
+          <div className="mt-6 rounded-2xl border border-dashed border-border/60 p-10 text-center">
+            <p className="text-lg font-medium text-muted-foreground">This weapon has no grindable camos.</p>
+            <p className="mt-2 text-sm text-muted-foreground/70">
+              {weapon.name} doesn't have a camo system in-game, so there's nothing to track here.
+            </p>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
   const req = getDiamondRequirement(weapon)
   const diamondCurrent = Math.min(weapon.diamondProgress ?? 0, req.target)
   const diamondPct = req.target > 0 ? Math.round((diamondCurrent / req.target) * 100) : 0

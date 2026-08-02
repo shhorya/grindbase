@@ -1,29 +1,38 @@
 import type { CompleteWeapon } from "./data"
 import type { WeaponCategory } from "./types"
 
+// Weapons with no camo system at all (like Base Melee) are shown in the
+// Arsenal for completeness but never count toward any stat, since there's
+// nothing to actually complete on them.
+function trackedOnly(weapons: CompleteWeapon[]) {
+  return weapons.filter((weapon) => !weapon.noCamos)
+}
+
 export function getOverallCompletion(weapons: CompleteWeapon[]) {
-  if (!weapons.length) return 0
+  const tracked = trackedOnly(weapons)
+  if (!tracked.length) return 0
 
   return Math.round(
-    weapons.reduce((sum, weapon) => sum + weapon.completion, 0) /
-      weapons.length
+    tracked.reduce((sum, weapon) => sum + weapon.completion, 0) /
+      tracked.length
   )
 }
 
 export function getGoldCount(weapons: CompleteWeapon[]) {
-  return weapons.filter((weapon) => weapon.gold).length
+  return trackedOnly(weapons).filter((weapon) => weapon.gold).length
 }
 
 export function getDiamondCount(weapons: CompleteWeapon[]) {
-  return weapons.filter((weapon) => weapon.diamond).length
+  return trackedOnly(weapons).filter((weapon) => weapon.diamond).length
 }
 
 export function getPlatinumCount(
   weapons: CompleteWeapon[],
   categories: WeaponCategory[]
 ) {
+  const tracked = trackedOnly(weapons)
   return categories.filter((category) => {
-    const categoryWeapons = weapons.filter(
+    const categoryWeapons = tracked.filter(
       (weapon) => weapon.category === category
     )
 
@@ -44,7 +53,7 @@ export function getCategoryProgress(
   weapons: CompleteWeapon[],
   category: WeaponCategory
 ) {
-  const categoryWeapons = weapons.filter(
+  const categoryWeapons = trackedOnly(weapons).filter(
     (weapon) => weapon.category === category
   )
 
@@ -72,7 +81,7 @@ export function getRecommendedGrinds(
   weapons: CompleteWeapon[],
   limit: number = 3
 ) {
-  return weapons
+  return trackedOnly(weapons)
     .filter((weapon) => !weapon.gold)
     .sort((a, b) => b.completion - a.completion)
     .slice(0, limit)

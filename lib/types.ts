@@ -24,6 +24,7 @@ export interface Weapon {
   eligibleSeasonalCamos: number
   dmzSeason1?: boolean
 dmzSeason2?: boolean
+noCamos?: boolean
 }
 
 export interface SeasonalCamo {
