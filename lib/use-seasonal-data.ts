@@ -59,6 +59,9 @@ const SEASONAL_CAMO_EXCLUDED_BY_WEAPON: Record<string, string[]> = {
     "lunar-tear", "ocean-waves", "astronomy", "sunken-gambit", "psychic-distortion",
     "stained-panes", "scorch-melt", "t-3-infused", "gilded-mist", "rime", "incandescent",
   ],
+  "MG42": [
+    "ice-locked", "opalescence",
+  ],
 
   // SMG
   "TEC-9": ["ice-locked", "opalescence"],
