@@ -909,14 +909,14 @@ export const weapons: Weapon[] = [
   // MELEES
   // =========================
 
-  {
-  id: "base-melee",
-  name: "Base Melee",
-  category: "Melee",
-  image: "/weapons/melee/base-melee.webp",
-  eligibleSeasonalCamos: 0,
-  noCamos: true,
-},
+//   {
+//   id: "base-melee",
+//   name: "Base Melee",
+//   category: "Melee",
+//   image: "/weapons/melee/base-melee.webp",
+//   eligibleSeasonalCamos: 0,
+//   noCamos: true,
+// },
   {
     id: "knife",
     name: "Knife",
