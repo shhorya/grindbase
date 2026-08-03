@@ -126,7 +126,7 @@ const SEASONAL_CAMO_EXCLUDED_BY_WEAPON: Record<string, string[]> = {
 }
 
 export function useSeasonalData() {
-  const { isOwned, toggle, hydrated, getMatchProgress, setMatchProgress } = useSeasonalProgress()
+  const { isOwned, toggle, setManyOwned, hydrated, getMatchProgress, setMatchProgress } = useSeasonalProgress()
 
   const camoStats = useMemo(() => {
     return SEASONAL_CAMOS.map((camo) => {
@@ -159,5 +159,5 @@ export function useSeasonalData() {
     })
   }, [isOwned, getMatchProgress])
 
-  return { camoStats, isOwned, toggle, hydrated, getMatchProgress, setMatchProgress }
+  return { camoStats, isOwned, toggle, setManyOwned, hydrated, getMatchProgress, setMatchProgress }
 }

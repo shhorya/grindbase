@@ -58,10 +58,45 @@ function emit() {
   listeners.forEach((listener) => listener())
 }
 
+async function fetchAllRows(userId: string) {
+  const supabase = createClient()
+  const PAGE_SIZE = 1000
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let allRows: any[] = []
+  let from = 0
+
+  while (true) {
+    const { data, error } = await supabase
+      .from("seasonal_progress")
+      .select("*")
+      .eq("user_id", userId)
+      .range(from, from + PAGE_SIZE - 1)
+
+    if (error) {
+      return { data: null, error }
+    }
+
+    if (!data || data.length === 0) {
+      break
+    }
+
+    allRows = allRows.concat(data)
+
+    if (data.length < PAGE_SIZE) {
+      break
+    }
+
+    from += PAGE_SIZE
+  }
+
+  return { data: allRows, error: null }
+}
+
 async function hydrateForUser(userId: string) {
   const versionAtStart = localWriteVersion
   const supabase = createClient()
-  const { data, error } = await supabase.from("seasonal_progress").select("*").eq("user_id", userId)
+  const { data, error } = await fetchAllRows(userId)
 
   if (error) {
     console.error("Failed to load seasonal progress:", error)
