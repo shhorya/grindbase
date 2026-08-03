@@ -74,6 +74,10 @@ let isHydrated = false
 let currentUserId: string | null = null
 let authWired = false
 let realtimeChannel: RealtimeChannel | null = null
+// Bumped on every local write. A hydrate that's still in flight when a
+// click happens can otherwise resolve afterward with stale data and
+// silently overwrite that click.
+let localWriteVersion = 0
 const listeners = new Set<() => void>()
 
 function emit() {
@@ -81,11 +85,19 @@ function emit() {
 }
 
 async function hydrateForUser(userId: string) {
+  const versionAtStart = localWriteVersion
   const supabase = createClient()
   const { data, error } = await supabase.from("weapon_progress").select("*").eq("user_id", userId)
 
   if (error) {
     console.error("Failed to load weapon progress:", error)
+    isHydrated = true
+    emit()
+    return
+  }
+
+  if (versionAtStart !== localWriteVersion) {
+    // A local edit happened while this fetch was in flight — don't stomp on it.
     isHydrated = true
     emit()
     return
@@ -188,6 +200,7 @@ function ensureAuthWired() {
 }
 
 async function updateWeaponInStore(weaponId: string, patch: Partial<WeaponProgress>) {
+  localWriteVersion++
   const finalPatch: Partial<WeaponProgress> = { ...patch }
   if (patch.gold === true) {
     finalPatch.goldUnlockedAt = Date.now()

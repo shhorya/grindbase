@@ -23,6 +23,10 @@ let isHydrated = false
 let currentUserId: string | null = null
 let authWired = false
 let realtimeChannel: RealtimeChannel | null = null
+// Bumped on every local write. A hydrate that's still in flight when a
+// click happens can otherwise resolve afterward with stale data and
+// silently overwrite that click.
+let localWriteVersion = 0
 const listeners = new Set<() => void>()
 
 function emit() {
@@ -30,6 +34,7 @@ function emit() {
 }
 
 async function hydrateForUser(userId: string) {
+  const versionAtStart = localWriteVersion
   const supabase = createClient()
   const { data, error } = await supabase
     .from("starred_camos")
@@ -39,6 +44,13 @@ async function hydrateForUser(userId: string) {
 
   if (error) {
     console.error("Failed to load starred camos:", error)
+    isHydrated = true
+    emit()
+    return
+  }
+
+  if (versionAtStart !== localWriteVersion) {
+    // A star was toggled while this fetch was in flight — don't stomp on it.
     isHydrated = true
     emit()
     return
@@ -150,12 +162,14 @@ async function persist() {
 }
 
 export function toggleSeasonalStar(camoId: string) {
+  localWriteVersion++
   state = { ...state, seasonalId: state.seasonalId === camoId ? null : camoId }
   emit()
   persist()
 }
 
 export function toggleDmzStar(camoId: string) {
+  localWriteVersion++
   state = { ...state, dmzId: state.dmzId === camoId ? null : camoId }
   emit()
   persist()

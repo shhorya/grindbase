@@ -48,6 +48,10 @@ let isHydrated = false
 let currentUserId: string | null = null
 let authWired = false
 let realtimeChannel: RealtimeChannel | null = null
+// Bumped on every local write (toggle, bulk-set, match-progress update).
+// A hydrate that's still in flight when a click happens can otherwise
+// resolve afterward with stale data and silently overwrite that click.
+let localWriteVersion = 0
 const listeners = new Set<() => void>()
 
 function emit() {
@@ -55,11 +59,20 @@ function emit() {
 }
 
 async function hydrateForUser(userId: string) {
+  const versionAtStart = localWriteVersion
   const supabase = createClient()
   const { data, error } = await supabase.from("seasonal_progress").select("*").eq("user_id", userId)
 
   if (error) {
     console.error("Failed to load seasonal progress:", error)
+    isHydrated = true
+    emit()
+    return
+  }
+
+  if (versionAtStart !== localWriteVersion) {
+    // A toggle/edit happened while this fetch was in flight — that local
+    // state is newer than what we just read, so don't stomp on it.
     isHydrated = true
     emit()
     return
@@ -190,6 +203,7 @@ async function persistRow(weaponId: string, camoId: string) {
 }
 
 async function toggleInStore(weaponId: string, camoId: string) {
+  localWriteVersion++
   const k = key(weaponId, camoId)
   state = { ...state, progress: { ...state.progress, [k]: !state.progress[k] } }
   emit()
@@ -200,6 +214,7 @@ async function toggleInStore(weaponId: string, camoId: string) {
 // request instead of one request per weapon, so a big bulk action can't
 // flood the network with dozens of simultaneous saves.
 async function setManyOwnedInStore(weaponIds: string[], camoId: string, owned: boolean) {
+  localWriteVersion++
   const nextProgress = { ...state.progress }
   weaponIds.forEach((weaponId) => {
     nextProgress[key(weaponId, camoId)] = owned
@@ -223,6 +238,7 @@ async function setManyOwnedInStore(weaponIds: string[], camoId: string, owned: b
 }
 
 async function setMatchProgressInStore(weaponId: string, camoId: string, value: number) {
+  localWriteVersion++
   const k = key(weaponId, camoId)
   state = { ...state, matchProgress: { ...state.matchProgress, [k]: Math.max(0, value) } }
   emit()
