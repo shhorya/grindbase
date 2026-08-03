@@ -38,7 +38,11 @@ export function getPlatinumCount(
 
     if (!categoryWeapons.length) return false
 
-    return categoryWeapons.every((weapon) => weapon.gold)
+    // Platinum is sticky once earned — checking the stored flag (rather
+    // than re-deriving "does everyone currently have Gold") means a new
+    // weapon added to this category later doesn't retroactively revoke
+    // a Platinum you already earned before it existed.
+    return categoryWeapons.some((weapon) => weapon.platinum)
   }).length
 }
 

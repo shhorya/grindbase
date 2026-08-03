@@ -86,9 +86,32 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
 
     if (field === "gold") {
       patch.completion = next ? 100 : 0
+
+      if (next) {
+        const categoryWeapons = weapons.filter((w) => w.category === current.category)
+        const categoryHasPlatinum = categoryWeapons.some((w) => w.platinum)
+
+        if (categoryHasPlatinum) {
+          // Category already earned Platinum before this weapon existed
+          // (or before you golded it) — catch it up automatically.
+          patch.platinum = true
+        } else {
+          // Does golding this weapon complete the category for the first
+          // time? If so, grant Platinum to everyone in it right now.
+          const allOthersGold = categoryWeapons
+            .filter((w) => w.id !== current.id)
+            .every((w) => w.gold)
+          if (allOthersGold) {
+            patch.platinum = true
+            categoryWeapons
+              .filter((w) => w.id !== current.id)
+              .forEach((w) => updateWeapon(w.id, { platinum: true }))
+          }
+        }
+      }
+
       if (!next) {
         patch.platinum = false
-        patch.diamond = false
         const categoryHadPlatinum = weapons.some((w) => w.category === current.category && w.platinum)
         if (categoryHadPlatinum) {
           weapons
