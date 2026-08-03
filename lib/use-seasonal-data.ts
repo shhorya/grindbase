@@ -87,7 +87,7 @@ const SEASONAL_CAMO_EXCLUDED_BY_WEAPON: Record<string, string[]> = {
     "dream-aurora", "mystic-burst", "nephrite", "power-nova", "shimmer", "ivory",
     "lunar-tear", "ocean-waves", "astronomy", "sunken-gambit", "psychic-distortion",
     "stained-panes", "scorch-melt", "t-3-infused", "gilded-mist", "rime", "incandescent",
-    "griffins-victory", "meltded-amethyst",
+    "griffins-victory", "melted-amethyst",
   ],
 
   // eligibleSeasonalCamos count in weapons.ts (should be 2), not an
