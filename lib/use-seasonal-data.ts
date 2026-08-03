@@ -82,7 +82,14 @@ const SEASONAL_CAMO_EXCLUDED_BY_WEAPON: Record<string, string[]> = {
     "lunar-tear", "ocean-waves", "astronomy", "sunken-gambit", "psychic-distortion",
     "stained-panes", "scorch-melt", "t-3-infused",
   ],
-  // FSS Hurricane isn't listed here — it's handled by its own
+  "FSS Hurricane": [
+    "ice-locked", "opalescence", "golden-opportunity", "futuristic", "carmine",
+    "dream-aurora", "mystic-burst", "nephrite", "power-nova", "shimmer", "ivory",
+    "lunar-tear", "ocean-waves", "astronomy", "sunken-gambit", "psychic-distortion",
+    "stained-panes", "scorch-melt", "t-3-infused", "gilded-mist", "rime", "incandescent",
+    "griffins-victory", "meltded-amethyst",
+  ],
+
   // eligibleSeasonalCamos count in weapons.ts (should be 2), not an
   // exclusion list, since it's a "newest gun, nothing beyond the base
   // 12 yet" case rather than a scattered-gaps case.
