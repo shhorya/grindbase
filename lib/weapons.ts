@@ -258,6 +258,13 @@ export const weapons: Weapon[] = [
     image: "/weapons/ar/bal-27.webp",
     eligibleSeasonalCamos: 36,
   },
+  {
+    id: "cronen-squall",
+    name: "Cronen Squall",
+    category: "Assault Rifle",
+    image: "/weapons/ar/cronen-squall.webp",
+    eligibleSeasonalCamos: 36,
+  },
 
   // =========================
   // SNIPER RIFLES

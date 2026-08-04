@@ -38,6 +38,13 @@ const SEASONAL_CAMO_EXCLUDED_BY_WEAPON: Record<string, string[]> = {
     "stained-panes", "scorch-melt", "t-3-infused", "gilded-mist", "rime",
     "incandescent", "griffins-victory",
   ],
+  "Cronen Squall": [
+    "ice-locked", "opalescence", "golden-opportunity", "futuristic", "carmine",
+    "dream-aurora", "mystic-burst", "nephrite", "power-nova", "shimmer", "ivory",
+    "lunar-tear", "ocean-waves", "astronomy", "sunken-gambit", "psychic-distortion",
+    "stained-panes", "scorch-melt", "t-3-infused", "gilded-mist", "rime",
+    "incandescent", "griffins-victory", "melted-amethyst", "fractal-visions", "white-paint",
+  ],
 
   // Sniper
   "LW3-Tundra": ["ice-locked"],

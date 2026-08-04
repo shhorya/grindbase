@@ -74,4 +74,5 @@ export const SEASONAL_CAMOS: SeasonalCamo[] = [
   { id: "melted-amethyst", name: "Melted Amethyst", texture: "/seasonal/melted-amethyst.webp", order: 34, source: "Secret Cache" },
   { id: "fractal-visions", name: "Fractal Visions", texture: "/seasonal/fractal-visions.webp", order: 35, source: "Event" },
   { id: "white-paint", name: "White Paint", texture: "/seasonal/white-paint.webp", order: 36, source: "Tournament" },
+  { id: "wildfire", name: "Wildfire", texture: "/seasonal/wildfire.webp", order: 37, source: "Secret Cache" },
 ]
