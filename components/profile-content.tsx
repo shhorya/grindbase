@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -137,8 +137,36 @@ export function ProfileContent({
     (c) => c.totalEligible > 0 && c.ownedCount === c.totalEligible
   ).length
 
+  // Tie-break order: highest completionist tier reached (Diamond > Platinum
+  // > Gold > none) → most seasonal+DMZ camos owned → most of the first 10
+  // (universal) seasonal camos owned.
+  const weaponStats = useMemo(() => {
+    const map = new Map<string, { tier: number; total: number; first10: number }>()
+    weapons.forEach((w) => {
+      const seasonalOwned = seasonalCamoStats.filter(
+        (c) => c.eligibleWeapons.some((e) => e.id === w.id) && isSeasonalOwned(w.id, c.id)
+      ).length
+      const dmzOwned = dmzCamoStats.filter(
+        (c) => c.eligibleWeapons.some((e) => e.id === w.id) && isDmzOwned(w.id, c.id)
+      ).length
+      const first10 = seasonalCamoStats.filter(
+        (c) => c.order <= 10 && isSeasonalOwned(w.id, c.id)
+      ).length
+      const tier = w.diamond ? 3 : w.platinum ? 2 : w.gold ? 1 : 0
+      map.set(w.id, { tier, total: seasonalOwned + dmzOwned, first10 })
+    })
+    return map
+  }, [weapons, seasonalCamoStats, dmzCamoStats, isSeasonalOwned, isDmzOwned])
+
   const mostProgressed = weapons.length > 0
-    ? weapons.reduce((best, w) => (w.completion > best.completion ? w : best), weapons[0])
+    ? weapons.reduce((best, w) => {
+        const wStats = weaponStats.get(w.id)!
+        const bestStats = weaponStats.get(best.id)!
+        if (wStats.tier !== bestStats.tier) return wStats.tier > bestStats.tier ? w : best
+        if (wStats.total !== bestStats.total) return wStats.total > bestStats.total ? w : best
+        if (wStats.first10 !== bestStats.first10) return wStats.first10 > bestStats.first10 ? w : best
+        return best
+      }, weapons[0])
     : null
 
   // This weapon's own camo counts — out of the camos it's actually
