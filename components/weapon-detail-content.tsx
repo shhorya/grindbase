@@ -358,14 +358,14 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
         )}
 
         {/* minus / lock / plus, flanking the lock in the middle of the thumbnail */}
-        <div className="absolute inset-0 flex items-center justify-center gap-3">
+        <div className="absolute inset-0 flex items-center justify-center gap-6">
           <button
             type="button"
             onClick={() => changeMatch(-1)}
-            className="flex size-3.5 items-center justify-center rounded-full bg-background/70 opacity-25 transition-all duration-200 hover:scale-110 hover:opacity-100"
+            className="flex size-4 items-center justify-center rounded-full bg-background/80 opacity-45 transition-all duration-200 hover:scale-110 hover:opacity-100"
             aria-label="Decrease match count"
           >
-            <Minus className="size-2 text-foreground" />
+            <Minus className="size-2.5 text-foreground" />
           </button>
 
           <button
@@ -384,16 +384,16 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
           <button
             type="button"
             onClick={() => changeMatch(1)}
-            className="flex size-3.5 items-center justify-center rounded-full bg-background/70 opacity-25 transition-all duration-200 hover:scale-110 hover:opacity-100"
+            className="flex size-4 items-center justify-center rounded-full bg-background/80 opacity-45 transition-all duration-200 hover:scale-110 hover:opacity-100"
             aria-label="Increase match count"
           >
-            <Plus className="size-2 text-foreground" />
+            <Plus className="size-2.5 text-foreground" />
           </button>
         </div>
 
-        {/* thin translucent bar, count only */}
-        <div className="absolute inset-x-0 bottom-0 bg-background/50 py-0.5 text-center backdrop-blur-sm">
-          <span className="font-mono text-[10px] font-semibold text-gold">
+        {/* small rounded pill, count only — doesn't touch the thumbnail's corners */}
+        <div className="absolute inset-x-0 bottom-1.5 flex justify-center">
+          <span className="rounded-full bg-background/70 px-2 py-0.5 font-mono text-[10px] font-semibold text-gold backdrop-blur-sm">
             {current}/{matchTarget}
           </span>
         </div>
