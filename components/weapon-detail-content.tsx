@@ -352,20 +352,27 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
         {!owned && <div className="absolute inset-0 bg-background/50 backdrop-blur-[1px]" />}
 
         {owned && (
-          <span className="absolute right-1.5 top-1.5 flex size-5 items-center justify-center rounded-full bg-gold text-primary-foreground">
+          <span className="absolute left-1.5 top-1.5 flex size-5 items-center justify-center rounded-full bg-gold text-primary-foreground">
             <Check className="size-3" />
           </span>
         )}
+
+        {/* count pill — top-right, opposite corner from the name below */}
+        <div className="absolute right-1.5 top-1.5">
+          <span className="rounded-full bg-background/70 px-2 py-0.5 font-mono text-[10px] font-semibold text-gold backdrop-blur-sm">
+            {current}/{matchTarget}
+          </span>
+        </div>
 
         {/* minus / lock / plus, flanking the lock in the middle of the thumbnail */}
         <div className="absolute inset-0 flex items-center justify-center gap-6">
           <button
             type="button"
             onClick={() => changeMatch(-1)}
-            className="flex size-4 items-center justify-center rounded-full bg-background/80 opacity-45 transition-all duration-200 hover:scale-110 hover:opacity-100"
+            className="flex size-4 items-center justify-center rounded-full bg-background/80 text-foreground opacity-45 transition-all duration-200 hover:scale-110 hover:opacity-100 hover:text-gold"
             aria-label="Decrease match count"
           >
-            <Minus className="size-2.5 text-foreground" />
+            <Minus className="size-2.5" />
           </button>
 
           <button
@@ -384,18 +391,11 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
           <button
             type="button"
             onClick={() => changeMatch(1)}
-            className="flex size-4 items-center justify-center rounded-full bg-background/80 opacity-45 transition-all duration-200 hover:scale-110 hover:opacity-100"
+            className="flex size-4 items-center justify-center rounded-full bg-background/80 text-foreground opacity-45 transition-all duration-200 hover:scale-110 hover:opacity-100 hover:text-gold"
             aria-label="Increase match count"
           >
-            <Plus className="size-2.5 text-foreground" />
+            <Plus className="size-2.5" />
           </button>
-        </div>
-
-        {/* small rounded pill, count only — doesn't touch the thumbnail's corners */}
-        <div className="absolute inset-x-0 bottom-1.5 flex justify-center">
-          <span className="rounded-full bg-background/70 px-2 py-0.5 font-mono text-[10px] font-semibold text-gold backdrop-blur-sm">
-            {current}/{matchTarget}
-          </span>
         </div>
       </div>
 
