@@ -346,65 +346,60 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
           : "border-border/60 bg-secondary/20 opacity-70 hover:opacity-100"
       )}
     >
-      <button
-        type="button"
-        onClick={handleUnlockToggle}
-        aria-label={owned ? "Lock Aether Crystal" : "Unlock Aether Crystal"}
-        className="block w-full text-left"
-      >
-        <div className="relative h-16 w-full overflow-hidden rounded-lg">
-          <Image src={camo.texture} alt={camo.name} fill className="object-cover" />
-          {!owned && (
-            <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-[1px]">
-              <Lock className="size-4 text-muted-foreground transition-all duration-300 ease-out group-hover:scale-125 group-hover:opacity-0" />
-              <Unlock className="absolute size-4 text-foreground opacity-0 transition-all duration-300 ease-out group-hover:scale-125 group-hover:opacity-100" />
-            </div>
-          )}
-          {owned && (
-            <span className="absolute right-1.5 top-1.5 flex size-5 items-center justify-center rounded-full bg-gold text-primary-foreground">
-              <Check className="size-3" />
-            </span>
-          )}
-        </div>
-        <span className="mt-2 block truncate text-xs font-medium">{camo.name}</span>
-      </button>
+      <div className="relative h-16 w-full overflow-hidden rounded-lg">
+        <Image src={camo.texture} alt={camo.name} fill className="object-cover" />
 
-      {/* Step counter overlaid on the thumbnail — keeps this tile the
-          same height as every other camo card, no box below the name. */}
-      <div className="pointer-events-none absolute left-3 right-3 top-3 flex h-16 flex-col justify-end">
-        <div
-          onClick={(e) => e.stopPropagation()}
-          className="pointer-events-auto flex items-center justify-between gap-1 rounded-b-lg bg-background/85 px-1.5 py-0.5 backdrop-blur-sm"
-        >
+        {!owned && <div className="absolute inset-0 bg-background/50 backdrop-blur-[1px]" />}
+
+        {owned && (
+          <span className="absolute right-1.5 top-1.5 flex size-5 items-center justify-center rounded-full bg-gold text-primary-foreground">
+            <Check className="size-3" />
+          </span>
+        )}
+
+        {/* minus / lock / plus, flanking the lock in the middle of the thumbnail */}
+        <div className="absolute inset-0 flex items-center justify-center gap-3">
           <button
             type="button"
             onClick={() => changeMatch(-1)}
-            className="flex size-4 items-center justify-center rounded text-muted-foreground hover:text-foreground"
+            className="flex size-3.5 items-center justify-center rounded-full bg-background/70 opacity-25 transition-all duration-200 hover:scale-110 hover:opacity-100"
             aria-label="Decrease match count"
           >
-            <Minus className="size-2.5" />
+            <Minus className="size-2 text-foreground" />
           </button>
+
           <button
             type="button"
             onClick={handleUnlockToggle}
-            className="flex items-center gap-1 text-gold hover:text-gold-bright"
             aria-label={owned ? "Lock Aether Crystal" : "Unlock Aether Crystal"}
+            className="transition-transform duration-200 hover:scale-110"
           >
-            {owned ? <Unlock className="size-3" /> : <Lock className="size-3" />}
-            <span className="font-mono text-[10px] font-semibold">
-              {current}/{matchTarget}
-            </span>
+            {owned ? (
+              <Unlock className="size-4 text-foreground" />
+            ) : (
+              <Lock className="size-4 text-muted-foreground" />
+            )}
           </button>
+
           <button
             type="button"
             onClick={() => changeMatch(1)}
-            className="flex size-4 items-center justify-center rounded text-muted-foreground hover:text-foreground"
+            className="flex size-3.5 items-center justify-center rounded-full bg-background/70 opacity-25 transition-all duration-200 hover:scale-110 hover:opacity-100"
             aria-label="Increase match count"
           >
-            <Plus className="size-2.5" />
+            <Plus className="size-2 text-foreground" />
           </button>
         </div>
+
+        {/* thin translucent bar, count only */}
+        <div className="absolute inset-x-0 bottom-0 bg-background/50 py-0.5 text-center backdrop-blur-sm">
+          <span className="font-mono text-[10px] font-semibold text-gold">
+            {current}/{matchTarget}
+          </span>
+        </div>
       </div>
+
+      <span className="mt-2 block truncate text-xs font-medium">{camo.name}</span>
     </div>
   )
 }
