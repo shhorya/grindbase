@@ -313,119 +313,101 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
                 const isAether = camo.id === AETHER_CAMO_ID
 
                 if (isAether) {
-                  const aetherStats = camoStats.find((c) => c.id === AETHER_CAMO_ID)
-                  const matchTarget = aetherStats?.matchesTarget ?? AETHER_MATCH_TARGET
-                  const currentRaw = getMatchProgress(weapon!.id, AETHER_CAMO_ID)
-                  const current = Math.min(Math.max(0, currentRaw), matchTarget)
-                  const pct = matchTarget > 0 ? Math.round((current / matchTarget) * 100) : 0
-                  const w = weapon!
+  const aetherStats = camoStats.find((c) => c.id === AETHER_CAMO_ID)
+  const matchTarget = aetherStats?.matchesTarget ?? AETHER_MATCH_TARGET
+  const currentRaw = getMatchProgress(weapon!.id, AETHER_CAMO_ID)
+  const current = Math.min(Math.max(0, currentRaw), matchTarget)
+  const w = weapon!
 
-                  function changeMatch(delta: number) {
-                    const next = Math.min(Math.max(0, current + delta), matchTarget)
-                    setMatchProgress(w.id, AETHER_CAMO_ID, next)
-                    // Keep the "owned" boolean in sync: 6/6 = owned, <6 = not owned.
-                    if (next >= matchTarget && !owned) toggle(w.id, AETHER_CAMO_ID)
-                    if (next < matchTarget && owned) toggle(w.id, AETHER_CAMO_ID)
-                  }
+  function changeMatch(delta: number) {
+    const next = Math.min(Math.max(0, current + delta), matchTarget)
+    setMatchProgress(w.id, AETHER_CAMO_ID, next)
+    if (next >= matchTarget && !owned) toggle(w.id, AETHER_CAMO_ID)
+    if (next < matchTarget && owned) toggle(w.id, AETHER_CAMO_ID)
+  }
 
-                  function handleUnlockToggle() {
-                    if (owned) {
-                      // Turning off: clear the counter and the owned flag.
-                      setMatchProgress(w.id, AETHER_CAMO_ID, 0)
-                      toggle(w.id, AETHER_CAMO_ID)
-                    } else {
-                      // Turning on: snap counter to 6/6 and mark owned.
-                      setMatchProgress(w.id, AETHER_CAMO_ID, matchTarget)
-                      toggle(w.id, AETHER_CAMO_ID)
-                    }
-                  }
+  function handleUnlockToggle() {
+    if (owned) {
+      setMatchProgress(w.id, AETHER_CAMO_ID, 0)
+      toggle(w.id, AETHER_CAMO_ID)
+    } else {
+      setMatchProgress(w.id, AETHER_CAMO_ID, matchTarget)
+      toggle(w.id, AETHER_CAMO_ID)
+    }
+  }
 
-                  return (
-                    <div
-                      key={camo.id}
-                      className={cn(
-                        "group relative overflow-hidden rounded-xl border p-3 text-left transition-all",
-                        owned
-                          ? "border-gold/50 bg-gold/5 hover:border-gold/70"
-                          : "border-border/60 bg-secondary/20 opacity-70 hover:opacity-100"
-                      )}
-                    >
-                      <button
-                        type="button"
-                        onClick={handleUnlockToggle}
-                        aria-label={owned ? "Lock Aether Crystal" : "Unlock Aether Crystal"}
-                        className="block w-full text-left"
-                      >
-                        <div className="relative h-16 w-full overflow-hidden rounded-lg">
-                          <Image src={camo.texture} alt={camo.name} fill className="object-cover" />
-                          {!owned && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-[1px]">
-                              <Lock className="size-4 text-muted-foreground transition-all duration-300 ease-out group-hover:scale-125 group-hover:opacity-0" />
-                              <Unlock className="absolute size-4 text-foreground opacity-0 transition-all duration-300 ease-out group-hover:scale-125 group-hover:opacity-100" />
-                            </div>
-                          )}
-                          {owned && (
-                            <span className="absolute right-1.5 top-1.5 flex size-5 items-center justify-center rounded-full bg-gold text-primary-foreground">
-                              <Check className="size-3" />
-                            </span>
-                          )}
-                        </div>
-                        <span className="mt-2 block truncate text-xs font-medium">{camo.name}</span>
-                      </button>
+  return (
+    <div
+      key={camo.id}
+      className={cn(
+        "group relative overflow-hidden rounded-xl border p-3 text-left transition-all",
+        owned
+          ? "border-gold/50 bg-gold/5 hover:border-gold/70"
+          : "border-border/60 bg-secondary/20 opacity-70 hover:opacity-100"
+      )}
+    >
+      <button
+        type="button"
+        onClick={handleUnlockToggle}
+        aria-label={owned ? "Lock Aether Crystal" : "Unlock Aether Crystal"}
+        className="block w-full text-left"
+      >
+        <div className="relative h-16 w-full overflow-hidden rounded-lg">
+          <Image src={camo.texture} alt={camo.name} fill className="object-cover" />
+          {!owned && (
+            <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-[1px]">
+              <Lock className="size-4 text-muted-foreground transition-all duration-300 ease-out group-hover:scale-125 group-hover:opacity-0" />
+              <Unlock className="absolute size-4 text-foreground opacity-0 transition-all duration-300 ease-out group-hover:scale-125 group-hover:opacity-100" />
+            </div>
+          )}
+          {owned && (
+            <span className="absolute right-1.5 top-1.5 flex size-5 items-center justify-center rounded-full bg-gold text-primary-foreground">
+              <Check className="size-3" />
+            </span>
+          )}
+        </div>
+        <span className="mt-2 block truncate text-xs font-medium">{camo.name}</span>
+      </button>
 
-                      <div className="mt-3 border-t border-border/40 pt-3">
-                        <div className="flex items-center justify-between text-[10px]">
-                          <span className="font-mono font-semibold text-gold">
-                            {current}/{matchTarget}
-                          </span>
-                          <span className="text-muted-foreground">{pct}%</span>
-                        </div>
-                        <GoldBar value={pct} className="mt-1.5 h-1" />
-                        <div className="mt-2 flex items-center gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => changeMatch(-1)}
-                            className="flex size-7 items-center justify-center rounded-lg border border-border/70 bg-secondary/30 text-muted-foreground hover:border-border hover:text-foreground"
-                            aria-label="Decrease match count"
-                          >
-                            <Minus className="size-3.5" />
-                          </button>
-                          <input
-                            type="number"
-                            value={current}
-                            min={0}
-                            max={matchTarget}
-                            onChange={(e) => {
-                              const v = Number(e.target.value) || 0
-                              const clamped = Math.min(Math.max(0, v), matchTarget)
-                              setMatchProgress(w.id, AETHER_CAMO_ID, clamped)
-                              if (clamped >= matchTarget && !owned) toggle(w.id, AETHER_CAMO_ID)
-                              if (clamped < matchTarget && owned) toggle(w.id, AETHER_CAMO_ID)
-                            }}
-                            className="h-7 w-12 rounded-lg border border-border/70 bg-secondary/30 text-center text-xs outline-none focus-visible:border-gold/50"
-                            aria-label="Aether Crystal match count"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => changeMatch(1)}
-                            className="flex size-7 items-center justify-center rounded-lg border border-border/70 bg-secondary/30 text-muted-foreground hover:border-border hover:text-foreground"
-                            aria-label="Increase match count"
-                          >
-                            <Plus className="size-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => changeMatch(10)}
-                            className="ml-auto rounded-lg border border-border/70 bg-secondary/30 px-2 py-1 text-[10px] text-muted-foreground hover:border-border hover:text-foreground"
-                            aria-label="Add ten matches"
-                          >
-                            +10
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                }
+      {/* Step counter overlaid on the thumbnail — keeps this tile the
+          same height as every other camo card, no box below the name. */}
+      <div className="pointer-events-none absolute left-3 right-3 top-3 flex h-16 flex-col justify-end">
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="pointer-events-auto flex items-center justify-between gap-1 rounded-b-lg bg-background/85 px-1.5 py-0.5 backdrop-blur-sm"
+        >
+          <button
+            type="button"
+            onClick={() => changeMatch(-1)}
+            className="flex size-4 items-center justify-center rounded text-muted-foreground hover:text-foreground"
+            aria-label="Decrease match count"
+          >
+            <Minus className="size-2.5" />
+          </button>
+          <button
+            type="button"
+            onClick={handleUnlockToggle}
+            className="flex items-center gap-1 text-gold hover:text-gold-bright"
+            aria-label={owned ? "Lock Aether Crystal" : "Unlock Aether Crystal"}
+          >
+            {owned ? <Unlock className="size-3" /> : <Lock className="size-3" />}
+            <span className="font-mono text-[10px] font-semibold">
+              {current}/{matchTarget}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => changeMatch(1)}
+            className="flex size-4 items-center justify-center rounded text-muted-foreground hover:text-foreground"
+            aria-label="Increase match count"
+          >
+            <Plus className="size-2.5" />
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
                 return (
                   <button
