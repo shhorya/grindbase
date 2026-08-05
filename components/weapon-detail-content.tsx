@@ -357,13 +357,6 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
           </span>
         )}
 
-        {/* count pill — top-right, opposite corner from the name below */}
-        <div className="absolute right-1.5 top-1.5">
-          <span className="rounded-full bg-background/70 px-2 py-0.5 font-mono text-[10px] font-semibold text-gold backdrop-blur-sm">
-            {current}/{matchTarget}
-          </span>
-        </div>
-
         {/* minus / lock / plus, flanking the lock in the middle of the thumbnail */}
         <div className="absolute inset-0 flex items-center justify-center gap-6">
           <button
@@ -399,7 +392,12 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
         </div>
       </div>
 
-      <span className="mt-2 block truncate text-xs font-medium">{camo.name}</span>
+      <div className="mt-2 flex items-center justify-between gap-1">
+        <span className="truncate text-xs font-medium">{camo.name}</span>
+        <span className="shrink-0 font-mono text-[10px] font-semibold text-gold">
+          {current}/{matchTarget}
+        </span>
+      </div>
     </div>
   )
 }
