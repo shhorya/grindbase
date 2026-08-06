@@ -9,7 +9,7 @@ import { useDmzProgress } from "./dmz-store"
 // documented exceptions, based on when each gun actually joined the game
 // relative to each DMZ season's timing.
 // Weapons with no DMZ camo access at all (either season).
-const DMZ_NO_ACCESS = ["FSS Hurricane", "BAL-27"]
+const DMZ_NO_ACCESS = ["FSS Hurricane", "BAL-27", "Cronen Squall"]
 
 // Weapons that only have Season 2 camos — too new to have existed for
 // Season 1's release window.
