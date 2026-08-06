@@ -79,10 +79,8 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
     const next = !current[field]
 
     if (field === "platinum") {
-      const categoryWeapons = weapons.filter((w) => w.category === current.category)
-      categoryWeapons.forEach((w) => {
-        updateWeapon(w.id, next ? { gold: true, platinum: true, completion: 100 } : { platinum: false })
-      })
+      // Per-weapon now — no longer cascades to the rest of the category.
+      updateWeapon(current.id, next ? { gold: true, platinum: true, completion: 100 } : { platinum: false })
       return
     }
 
@@ -115,13 +113,8 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
       }
 
       if (!next) {
+        // Only clears this weapon's Platinum — siblings untouched.
         patch.platinum = false
-        const categoryHadPlatinum = weapons.some((w) => w.category === current.category && w.platinum)
-        if (categoryHadPlatinum) {
-          weapons
-            .filter((w) => w.category === current.category && w.id !== current.id)
-            .forEach((w) => updateWeapon(w.id, { platinum: false }))
-        }
       }
     }
     if (field === "diamond") {
@@ -197,7 +190,6 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
             tone="platinum"
             active={weapon.platinum}
             onClick={() => toggleField("platinum")}
-            hint="Whole category"
           />
           <TierToggle
             label="Diamond"

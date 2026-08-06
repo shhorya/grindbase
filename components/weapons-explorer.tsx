@@ -85,16 +85,10 @@ export function WeaponsExplorer({
     const next = !weapon[field]
 
     if (field === "platinum") {
-      const categoryWeapons = weapons.filter((w) => w.category === weapon.category)
-      if (next) {
-        categoryWeapons.forEach((w) => {
-          updateWeapon(w.id, { gold: true, platinum: true, completion: 100 })
-        })
-      } else {
-        categoryWeapons.forEach((w) => {
-          updateWeapon(w.id, { platinum: false })
-        })
-      }
+      // Per-weapon now — no longer cascades to the rest of the category.
+      // Turning it on also gilds this weapon (Platinum requires Gold);
+      // turning it off only affects this weapon.
+      updateWeapon(weaponId, next ? { gold: true, platinum: true, completion: 100 } : { platinum: false })
       return
     }
 
@@ -127,18 +121,11 @@ export function WeaponsExplorer({
       }
 
       if (!next) {
+        // Un-golding this weapon only clears its own Platinum/Diamond.
+        // Other weapons in the category, and the category's Platinum
+        // badge, are untouched.
         patch.platinum = false
         patch.diamond = false
-        // If this category had Platinum unlocked, removing Gold from one
-        // weapon breaks Platinum for the whole category.
-        const categoryHadPlatinum = weapons.some(
-          (w) => w.category === weapon.category && w.platinum
-        )
-        if (categoryHadPlatinum) {
-          weapons
-            .filter((w) => w.category === weapon.category && w.id !== weaponId)
-            .forEach((w) => updateWeapon(w.id, { platinum: false }))
-        }
       }
     }
     if (field === "diamond") {
