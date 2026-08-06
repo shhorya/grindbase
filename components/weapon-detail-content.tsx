@@ -79,8 +79,19 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
     const next = !current[field]
 
     if (field === "platinum") {
-      // Per-weapon now — no longer cascades to the rest of the category.
-      updateWeapon(current.id, next ? { gold: true, platinum: true, completion: 100 } : { platinum: false })
+      const categoryWeapons = weapons.filter((w) => w.category === current.category)
+      if (next) {
+        const categoryHasPlatinum = categoryWeapons.some((w) => w.platinum)
+        if (!categoryHasPlatinum) {
+          categoryWeapons.forEach((w) => {
+            updateWeapon(w.id, { gold: true, platinum: true, completion: 100 })
+          })
+        } else {
+          updateWeapon(current.id, { gold: true, platinum: true, completion: 100 })
+        }
+      } else {
+        updateWeapon(current.id, { platinum: false })
+      }
       return
     }
 

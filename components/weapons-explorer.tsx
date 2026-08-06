@@ -85,10 +85,21 @@ export function WeaponsExplorer({
     const next = !weapon[field]
 
     if (field === "platinum") {
-      // Per-weapon now — no longer cascades to the rest of the category.
-      // Turning it on also gilds this weapon (Platinum requires Gold);
-      // turning it off only affects this weapon.
-      updateWeapon(weaponId, next ? { gold: true, platinum: true, completion: 100 } : { platinum: false })
+      const categoryWeapons = weapons.filter((w) => w.category === weapon.category)
+      if (next) {
+        const categoryHasPlatinum = categoryWeapons.some((w) => w.platinum)
+        if (!categoryHasPlatinum) {
+          // First Platinum in this category — turn on every weapon in it.
+          categoryWeapons.forEach((w) => {
+            updateWeapon(w.id, { gold: true, platinum: true, completion: 100 })
+          })
+        } else {
+          // Category already has Platinum — per-weapon only from here on.
+          updateWeapon(weaponId, { gold: true, platinum: true, completion: 100 })
+        }
+      } else {
+        updateWeapon(weaponId, { platinum: false })
+      }
       return
     }
 
