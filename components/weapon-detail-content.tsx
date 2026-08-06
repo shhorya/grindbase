@@ -10,7 +10,8 @@ import { useCamoData } from "@/lib/use-camo-data"
 import { useSeasonalData } from "@/lib/use-seasonal-data"
 import { useDmzData } from "@/lib/use-dmz-data"
 import { getDmzDisplayName } from "@/lib/dmz-camos"
-import { getDiamondRequirement } from "@/lib/constants"
+import { CATEGORIES, getDiamondRequirement } from "@/lib/constants"
+import { hasDamascus } from "@/lib/calculations"
 import { cn } from "@/lib/utils"
 
 const AETHER_CAMO_ID = "aether-crystal"
@@ -71,7 +72,7 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
   const eligibleDmzCamos = dmzCamoStats.filter((c) => c.eligibleWeapons.some((w) => w.id === weapon.id))
   const ownedDmzCamos = eligibleDmzCamos.filter((c) => isDmzOwned(weapon.id, c.id))
 
-  const damascusUnlocked = weapons.every((w) => w.gold)
+  const damascusUnlocked = hasDamascus(weapons, CATEGORIES)
 
   function toggleField(field: "gold" | "platinum" | "diamond") {
     const current = weapon!
