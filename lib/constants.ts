@@ -86,3 +86,26 @@ export const DIAMOND_REQUIREMENT_OVERRIDES: Partial<Record<string, DiamondRequir
 export function getDiamondRequirement(weapon: { name: string; category: WeaponCategory }): DiamondRequirement {
   return DIAMOND_REQUIREMENT_OVERRIDES[weapon.name] ?? DIAMOND_REQUIREMENTS[weapon.category]
 }
+
+// The original CODM launch roster. Damascus is gated on ALL of these
+// specific weapons holding Platinum — not "any 1 per category" like the
+// regular Platinum badge. Weapons added after launch never count toward
+// this, even once their category has Platinum from an OG gun.
+export const DAMASCUS_OG_WEAPON_IDS: string[] = [
+  // Assault Rifle
+  "m4", "ak117", "ak47", "type-25", "asm10", "bk57", "lk24", "m16", "icr-1", "kn-44",
+  // SMG
+  "rus-79u", "pdw-57", "hg-40", "chicom", "msmc", "pharo", "cordite",
+  // LMG
+  "rpd", "m4lmg", "ul736", "s36", "chopper",
+  // Sniper
+  "dl-q33", "arctic-50", "m21-ebr", "xpr-50",
+  // Shotgun
+  "by15", "hs2126", "hs0405", "striker",
+  // Pistol
+  "mw11", "j358",
+  // Launcher
+  "smrs", "fhj-18",
+  // Melee
+  "knife",
+]

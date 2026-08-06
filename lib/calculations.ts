@@ -48,9 +48,12 @@ export function getPlatinumCount(
 
 export function hasDamascus(
   weapons: CompleteWeapon[],
-  categories: WeaponCategory[]
+  ogWeaponIds: string[]
 ) {
-  return getPlatinumCount(weapons, categories) === categories.length
+  return ogWeaponIds.every((id) => {
+    const weapon = weapons.find((w) => w.id === id)
+    return weapon?.platinum === true
+  })
 }
 
 export function getCategoryProgress(

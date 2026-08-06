@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo } from "react"
-import { CATEGORIES } from "./constants"
+import { DAMASCUS_OG_WEAPON_IDS } from "./constants"
 import {
   getDiamondCount,
   getGoldCount,
@@ -40,7 +40,7 @@ export function useCamoData() {
       goldCount: getGoldCount(weapons),
       platinumCount: tracked.filter((w) => w.platinum).length,
       diamondCount: getDiamondCount(weapons),
-      damascusUnlocked: hasDamascus(weapons, CATEGORIES),
+      damascusUnlocked: hasDamascus(weapons, DAMASCUS_OG_WEAPON_IDS),
       seasonalOwned: 0,
       seasonalTotal: 0,
       seasonalCompletion: 0,

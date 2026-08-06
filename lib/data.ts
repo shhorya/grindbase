@@ -2,6 +2,7 @@ import {
   CATEGORIES,
   CAMO_TEXTURES,
   CURRENT_SEASON,
+  DAMASCUS_OG_WEAPON_IDS,
 } from "./constants"
 
 import {
@@ -50,7 +51,7 @@ export const stats = {
   platinumCount: getPlatinumCount(completeWeapons, CATEGORIES),
   diamondCount: getDiamondCount(completeWeapons),
 
-  damascusUnlocked: hasDamascus(completeWeapons, CATEGORIES),
+  damascusUnlocked: hasDamascus(completeWeapons, DAMASCUS_OG_WEAPON_IDS),
 
   seasonId: CURRENT_SEASON.id,
   seasonName: CURRENT_SEASON.name,
