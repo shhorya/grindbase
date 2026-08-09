@@ -103,7 +103,7 @@ export function CompletionistWidget({
               Unlock All
             </button>
           </div>
-          <div className="mt-3 grid grid-cols-5 gap-2">
+          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
             {camos
               .filter((c) => c.category === expanded)
               .map((camo) => {
@@ -113,22 +113,22 @@ export function CompletionistWidget({
                     key={camo.id}
                     type="button"
                     onClick={() => handleToggleCamo(camo.id)}
-                    className="group/tile text-left"
+                    className={cn(
+                      "group/tile relative overflow-hidden rounded-xl border p-3 text-left transition-all",
+                      owned
+                        ? "border-gold/50 bg-gold/5 hover:border-gold/70"
+                        : "border-border/60 bg-secondary/20 opacity-70 hover:opacity-100"
+                    )}
                   >
-                    <div
-                      className={cn(
-                        "relative aspect-square w-full overflow-hidden rounded-md border transition-colors",
-                        owned ? "border-gold/50" : "border-border/60 opacity-70 group-hover/tile:opacity-100"
-                      )}
-                    >
+                    <div className="relative h-16 w-full overflow-hidden rounded-lg">
                       <Image src={camo.texture} alt={camo.name} fill className="object-cover" />
                       {owned && (
-                        <span className="absolute right-0.5 top-0.5 flex size-3.5 items-center justify-center rounded-full bg-gold text-primary-foreground">
-                          <Check className="size-2" />
+                        <span className="absolute right-1.5 top-1.5 flex size-5 items-center justify-center rounded-full bg-gold text-primary-foreground">
+                          <Check className="size-3" />
                         </span>
                       )}
                     </div>
-                    <span className="mt-1 block truncate text-[9px] text-muted-foreground">{camo.name}</span>
+                    <span className="mt-2 block truncate text-xs font-medium">{camo.name}</span>
                   </button>
                 )
               })}
