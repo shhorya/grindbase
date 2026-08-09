@@ -1,13 +1,12 @@
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowLeft, Check, Lock, Minus, Plus, Unlock } from "lucide-react"
 import { HudNav } from "@/components/hud-nav"
 import { GoldBar } from "@/components/gold-bar"
 import { DraggableProgressBar } from "@/components/draggable-progress-bar"
-import { BasicCamoPopup } from "@/components/basic-camo-popup"
+import { CompletionistWidget } from "@/components/completionist-widget"
 import { useCamoData } from "@/lib/use-camo-data"
 import { useSeasonalData } from "@/lib/use-seasonal-data"
 import { useDmzData } from "@/lib/use-dmz-data"
@@ -23,7 +22,6 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
   const { weapons, updateWeapon } = useCamoData()
   const { camoStats, isOwned, toggle, getMatchProgress, setMatchProgress } = useSeasonalData()
   const { camoStats: dmzCamoStats, isOwned: isDmzOwned, toggle: toggleDmz } = useDmzData()
-  const [goldPopupOpen, setGoldPopupOpen] = useState(false)
 
   const weapon = weapons.find((w) => w.id === weaponId)
   if (!weapon) return null
@@ -198,7 +196,14 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
 
         {/* Tier toggles */}
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <TierToggle label="Gold" tone="gold" active={weapon.gold} onClick={() => setGoldPopupOpen(true)} />
+          <TierToggle
+            label="Gold"
+            tone="gold"
+            active={weapon.gold}
+            onClick={() =>
+              document.getElementById("completionist-widget")?.scrollIntoView({ behavior: "smooth", block: "center" })
+            }
+          />
           <TierToggle
             label="Platinum"
             tone="platinum"
@@ -300,6 +305,11 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
               +10
             </button>
           </div>
+        </div>
+
+        {/* Completionist — the 60 Basic Camos that drive this weapon's Gold */}
+        <div className="mt-6">
+          <CompletionistWidget weapon={weapon} onFlipGold={() => toggleField("gold")} />
         </div>
 
         {/* Seasonal camos */}
@@ -503,14 +513,6 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
           )}
         </div>
       </main>
-
-      {goldPopupOpen && (
-        <BasicCamoPopup
-          weapon={weapon}
-          onFlipGold={() => toggleField("gold")}
-          onClose={() => setGoldPopupOpen(false)}
-        />
-      )}
     </div>
   )
 }

@@ -6,6 +6,7 @@ export interface BasicCamo {
   category: BasicCamoCategory
   tier: number // 1-10 within its category
   order: number // 1-60 overall progression order
+  texture: string
 }
 
 const CATEGORY_ORDER: BasicCamoCategory[] = ["Sand", "Dragon", "Splinter", "Tiger", "Jungle", "Reptile"]
@@ -30,7 +31,19 @@ export const BASIC_CAMOS: BasicCamo[] = CATEGORY_ORDER.flatMap((category, catIdx
     category,
     tier: i + 1,
     order: catIdx * 10 + i + 1,
+    texture: `/basic-camos/${slugify(category)}/${slugify(name)}.webp`,
   }))
 )
 
 export const BASIC_CAMO_IDS = BASIC_CAMOS.map((c) => c.id)
+export const BASIC_CAMO_CATEGORIES: BasicCamoCategory[] = CATEGORY_ORDER
+
+// Thumbnail for the collapsed Completionist row — each category's tier-1
+// camo (e.g. Dragon → H2O), pulled straight from BASIC_CAMOS so it's
+// never out of sync with the real texture.
+export const BASIC_CAMO_CATEGORY_IMAGES: Record<BasicCamoCategory, string> = Object.fromEntries(
+  CATEGORY_ORDER.map((category) => [
+    category,
+    BASIC_CAMOS.find((c) => c.category === category && c.tier === 1)!.texture,
+  ])
+) as Record<BasicCamoCategory, string>
