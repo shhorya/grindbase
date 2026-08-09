@@ -1,11 +1,13 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowLeft, Check, Lock, Minus, Plus, Unlock } from "lucide-react"
 import { HudNav } from "@/components/hud-nav"
 import { GoldBar } from "@/components/gold-bar"
 import { DraggableProgressBar } from "@/components/draggable-progress-bar"
+import { BasicCamoPopup } from "@/components/basic-camo-popup"
 import { useCamoData } from "@/lib/use-camo-data"
 import { useSeasonalData } from "@/lib/use-seasonal-data"
 import { useDmzData } from "@/lib/use-dmz-data"
@@ -21,6 +23,7 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
   const { weapons, updateWeapon } = useCamoData()
   const { camoStats, isOwned, toggle, getMatchProgress, setMatchProgress } = useSeasonalData()
   const { camoStats: dmzCamoStats, isOwned: isDmzOwned, toggle: toggleDmz } = useDmzData()
+  const [goldPopupOpen, setGoldPopupOpen] = useState(false)
 
   const weapon = weapons.find((w) => w.id === weaponId)
   if (!weapon) return null
@@ -195,7 +198,7 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
 
         {/* Tier toggles */}
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <TierToggle label="Gold" tone="gold" active={weapon.gold} onClick={() => toggleField("gold")} />
+          <TierToggle label="Gold" tone="gold" active={weapon.gold} onClick={() => setGoldPopupOpen(true)} />
           <TierToggle
             label="Platinum"
             tone="platinum"
@@ -317,94 +320,97 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
                 const isAether = camo.id === AETHER_CAMO_ID
 
                 if (isAether) {
-  const aetherStats = camoStats.find((c) => c.id === AETHER_CAMO_ID)
-  const matchTarget = aetherStats?.matchesTarget ?? AETHER_MATCH_TARGET
-  const currentRaw = getMatchProgress(weapon!.id, AETHER_CAMO_ID)
-  const current = Math.min(Math.max(0, currentRaw), matchTarget)
-  const w = weapon!
+                  const aetherStats = camoStats.find((c) => c.id === AETHER_CAMO_ID)
+                  const matchTarget = aetherStats?.matchesTarget ?? AETHER_MATCH_TARGET
+                  const currentRaw = getMatchProgress(weapon!.id, AETHER_CAMO_ID)
+                  const current = Math.min(Math.max(0, currentRaw), matchTarget)
+                  const w = weapon!
 
-  function changeMatch(delta: number) {
-    const next = Math.min(Math.max(0, current + delta), matchTarget)
-    setMatchProgress(w.id, AETHER_CAMO_ID, next)
-    if (next >= matchTarget && !owned) toggle(w.id, AETHER_CAMO_ID)
-    if (next < matchTarget && owned) toggle(w.id, AETHER_CAMO_ID)
-  }
+                  function changeMatch(delta: number) {
+                    const next = Math.min(Math.max(0, current + delta), matchTarget)
+                    setMatchProgress(w.id, AETHER_CAMO_ID, next)
+                    // Keep the "owned" boolean in sync: 6/6 = owned, <6 = not owned.
+                    if (next >= matchTarget && !owned) toggle(w.id, AETHER_CAMO_ID)
+                    if (next < matchTarget && owned) toggle(w.id, AETHER_CAMO_ID)
+                  }
 
-  function handleUnlockToggle() {
-    if (owned) {
-      setMatchProgress(w.id, AETHER_CAMO_ID, 0)
-      toggle(w.id, AETHER_CAMO_ID)
-    } else {
-      setMatchProgress(w.id, AETHER_CAMO_ID, matchTarget)
-      toggle(w.id, AETHER_CAMO_ID)
-    }
-  }
+                  function handleUnlockToggle() {
+                    if (owned) {
+                      // Turning off: clear the counter and the owned flag.
+                      setMatchProgress(w.id, AETHER_CAMO_ID, 0)
+                      toggle(w.id, AETHER_CAMO_ID)
+                    } else {
+                      // Turning on: snap counter to 6/6 and mark owned.
+                      setMatchProgress(w.id, AETHER_CAMO_ID, matchTarget)
+                      toggle(w.id, AETHER_CAMO_ID)
+                    }
+                  }
 
-  return (
-    <div
-      key={camo.id}
-      className={cn(
-        "group relative overflow-hidden rounded-xl border p-3 text-left transition-all",
-        owned
-          ? "border-gold/50 bg-gold/5 hover:border-gold/70"
-          : "border-border/60 bg-secondary/20 opacity-70 hover:opacity-100"
-      )}
-    >
-      <div className="relative h-16 w-full overflow-hidden rounded-lg">
-        <Image src={camo.texture} alt={camo.name} fill className="object-cover" />
+                  return (
+                    <div
+                      key={camo.id}
+                      className={cn(
+                        "group relative overflow-hidden rounded-xl border p-3 text-left transition-all",
+                        owned
+                          ? "border-gold/50 bg-gold/5 hover:border-gold/70"
+                          : "border-border/60 bg-secondary/20 opacity-70 hover:opacity-100"
+                      )}
+                    >
+                      <div className="relative h-16 w-full overflow-hidden rounded-lg">
+                        <Image src={camo.texture} alt={camo.name} fill className="object-cover" />
 
-        {!owned && <div className="absolute inset-0 bg-background/50 backdrop-blur-[1px]" />}
+                        {!owned && <div className="absolute inset-0 bg-background/50 backdrop-blur-[1px]" />}
 
-        {owned && (
-          <span className="absolute left-1.5 top-1.5 flex size-5 items-center justify-center rounded-full bg-gold text-primary-foreground">
-            <Check className="size-3" />
-          </span>
-        )}
+                        {owned && (
+                          <span className="absolute left-1.5 top-1.5 flex size-5 items-center justify-center rounded-full bg-gold text-primary-foreground">
+                            <Check className="size-3" />
+                          </span>
+                        )}
 
-        {/* minus / lock / plus, flanking the lock in the middle of the thumbnail */}
-        <div className="absolute inset-0 flex items-center justify-center gap-6">
-          <button
-            type="button"
-            onClick={() => changeMatch(-1)}
-            className="flex size-4 items-center justify-center rounded-full bg-background/80 text-foreground opacity-45 transition-all duration-200 hover:scale-110 hover:opacity-100 hover:text-gold"
-            aria-label="Decrease match count"
-          >
-            <Minus className="size-2.5" />
-          </button>
+                        {/* minus / lock / plus, flanking the lock in the middle of the thumbnail */}
+                        <div className="absolute inset-0 flex items-center justify-center gap-6">
+                          <button
+                            type="button"
+                            onClick={() => changeMatch(-1)}
+                            className="flex size-4 items-center justify-center rounded-full bg-background/80 text-foreground opacity-45 transition-all duration-200 hover:scale-110 hover:opacity-100 hover:text-gold"
+                            aria-label="Decrease match count"
+                          >
+                            <Minus className="size-2.5" />
+                          </button>
 
-          <button
-            type="button"
-            onClick={handleUnlockToggle}
-            aria-label={owned ? "Lock Aether Crystal" : "Unlock Aether Crystal"}
-            className="transition-transform duration-200 hover:scale-110"
-          >
-            {owned ? (
-              <Unlock className="size-4 text-foreground" />
-            ) : (
-              <Lock className="size-4 text-muted-foreground" />
-            )}
-          </button>
+                          <button
+                            type="button"
+                            onClick={handleUnlockToggle}
+                            aria-label={owned ? "Lock Aether Crystal" : "Unlock Aether Crystal"}
+                            className="transition-transform duration-200 hover:scale-110"
+                          >
+                            {owned ? (
+                              <Unlock className="size-4 text-foreground" />
+                            ) : (
+                              <Lock className="size-4 text-muted-foreground" />
+                            )}
+                          </button>
 
-          <button
-            type="button"
-            onClick={() => changeMatch(1)}
-            className="flex size-4 items-center justify-center rounded-full bg-background/80 text-foreground opacity-45 transition-all duration-200 hover:scale-110 hover:opacity-100 hover:text-gold"
-            aria-label="Increase match count"
-          >
-            <Plus className="size-2.5" />
-          </button>
-        </div>
-      </div>
+                          <button
+                            type="button"
+                            onClick={() => changeMatch(1)}
+                            className="flex size-4 items-center justify-center rounded-full bg-background/80 text-foreground opacity-45 transition-all duration-200 hover:scale-110 hover:opacity-100 hover:text-gold"
+                            aria-label="Increase match count"
+                          >
+                            <Plus className="size-2.5" />
+                          </button>
+                        </div>
+                      </div>
 
-      <div className="mt-2 flex items-center justify-between gap-1">
-        <span className="truncate text-xs font-medium">{camo.name}</span>
-        <span className="shrink-0 font-mono text-[10px] font-semibold text-gold">
-          {current}/{matchTarget}
-        </span>
-      </div>
-    </div>
-  )
-}
+                      <div className="mt-2 flex items-center justify-between gap-1">
+                        <span className="truncate text-xs font-medium">{camo.name}</span>
+                        <span className="shrink-0 font-mono text-[10px] font-semibold text-gold">
+                          {current}/{matchTarget}
+                        </span>
+                      </div>
+                    </div>
+                  )
+                }
 
                 return (
                   <button
@@ -497,6 +503,14 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
           )}
         </div>
       </main>
+
+      {goldPopupOpen && (
+        <BasicCamoPopup
+          weapon={weapon}
+          onFlipGold={() => toggleField("gold")}
+          onClose={() => setGoldPopupOpen(false)}
+        />
+      )}
     </div>
   )
 }

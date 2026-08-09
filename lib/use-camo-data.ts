@@ -10,6 +10,7 @@ import {
 } from "./calculations"
 import { weapons as staticWeapons } from "./weapons"
 import { useWeaponProgress } from "./progress-store"
+import { useBasicCamoData, BASIC_CAMO_TOTAL } from "./use-basic-camo-data"
 import type { Weapon } from "./types"
 import type { WeaponProgress } from "./progress"
 
@@ -17,15 +18,25 @@ export type CompleteWeapon = Weapon & WeaponProgress
 
 export function useCamoData() {
   const { progress, updateWeapon, hydrated } = useWeaponProgress()
+  const { getOwnedCount: getBasicCamoCount } = useBasicCamoData()
 
   const weapons: CompleteWeapon[] = useMemo(
     () =>
-      staticWeapons.map((weapon) => ({
-        ...weapon,
-        ...progress.find((p) => p.weaponId === weapon.id)!,
-        owned: true,
-      })),
-    [progress]
+      staticWeapons.map((weapon) => {
+        const base = {
+          ...weapon,
+          ...progress.find((p) => p.weaponId === weapon.id)!,
+          owned: true,
+        }
+        // Already-gold weapons keep showing 100% (no regression on old
+        // progress). Everyone else shows their real fraction of the 60
+        // Basic Camos, live.
+        const completion = base.gold
+          ? 100
+          : Math.round((getBasicCamoCount(weapon.id) / BASIC_CAMO_TOTAL) * 100)
+        return { ...base, completion }
+      }),
+    [progress, getBasicCamoCount]
   )
 
   const stats = useMemo(() => {
