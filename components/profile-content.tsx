@@ -58,15 +58,17 @@ function StatPill({
   label,
   toneClass,
   href,
+  compact,
 }: {
   icon: LucideIcon
   value: string | number
   label: string
   toneClass: string
   href: string
+  compact?: boolean
 }) {
   return (
-    <Link href={href} className="group flex shrink-0 items-center gap-2.5 transition-opacity hover:opacity-80">
+    <Link href={href} className="group flex min-w-0 items-center gap-2.5 transition-opacity hover:opacity-80">
       <span
         className={cn(
           "flex size-9 shrink-0 items-center justify-center rounded-lg border transition-transform group-hover:scale-105",
@@ -75,9 +77,16 @@ function StatPill({
       >
         <Icon className="size-4" />
       </span>
-      <div>
-        <div className="font-mono text-lg font-semibold leading-none whitespace-nowrap sm:text-base lg:text-lg">{value}</div>
-        <div className="mt-0.5 text-xs whitespace-nowrap text-muted-foreground">{label}</div>
+      <div className="min-w-0">
+        <div
+          className={cn(
+            "font-mono font-semibold leading-none",
+            compact ? "text-sm" : "text-lg whitespace-nowrap"
+          )}
+        >
+          {value}
+        </div>
+        <div className="mt-0.5 truncate text-xs text-muted-foreground">{label}</div>
       </div>
     </Link>
   )
@@ -506,10 +515,11 @@ export function ProfileContent({
             />
             <StatPill
               icon={Layers}
-              value={`${allCamosOwned.toLocaleString()}/${allCamosTotal.toLocaleString()}`}
+              value={`${allCamosOwned}/${allCamosTotal}`}
               label="Total Camos"
               toneClass="border-gold/40 bg-gold/10 text-gold"
               href="/weapons"
+              compact
             />
           </div>
         </div>
