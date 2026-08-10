@@ -518,7 +518,7 @@ export function ProfileContent({
           </div>
 
           {/* Horizontal stat strip */}
-          <div className="mt-8 flex items-center justify-between gap-x-4 border-t border-border/60 pt-6">
+          <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-5 border-t border-border/60 pt-6 sm:grid-cols-4 lg:grid-cols-7">
             <StatPill
               icon={Trophy}
               value={stats.goldCount}
@@ -547,7 +547,6 @@ export function ProfileContent({
               toneClass="border-purple-400/40 bg-gradient-to-br from-red-500/15 to-blue-500/15 text-purple-300"
               href="/damascus"
             />
-            <div className="hidden h-9 w-px bg-border/60 sm:block" />
             <StatPill
               icon={Flame}
               value={`${seasonalCompleted}/${seasonalCamoStats.length}`}
@@ -562,7 +561,6 @@ export function ProfileContent({
               toneClass="border-gold/40 bg-gold/10 text-gold"
               href="/dmz"
             />
-            <div className="hidden h-9 w-px bg-border/60 sm:block" />
             <StatPill
               icon={Layers}
               value={`${allCamosOwned}/${allCamosTotal}`}
