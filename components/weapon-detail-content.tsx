@@ -251,6 +251,11 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
           </Link>
         </div>
 
+        {/* Completionist — the 60 Basic Camos that drive this weapon's Gold */}
+        <div className="mt-6">
+          <CompletionistWidget weapon={weapon} onFlipGold={() => toggleField("gold")} />
+        </div>
+
         {/* Diamond progress */}
         <div className="mt-6 rounded-2xl border border-diamond/25 glass p-6">
           <div className="flex items-center justify-between">
@@ -305,11 +310,6 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
               +10
             </button>
           </div>
-        </div>
-
-        {/* Completionist — the 60 Basic Camos that drive this weapon's Gold */}
-        <div className="mt-6">
-          <CompletionistWidget weapon={weapon} onFlipGold={() => toggleField("gold")} />
         </div>
 
         {/* Seasonal camos */}
