@@ -30,6 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useCamoData } from "@/lib/use-camo-data"
+import { useBasicCamoData, BASIC_CAMO_TOTAL } from "@/lib/use-basic-camo-data"
 import { useSeasonalData } from "@/lib/use-seasonal-data"
 import { useDmzData } from "@/lib/use-dmz-data"
 import { getDmzDisplayName } from "@/lib/dmz-camos"
@@ -39,7 +40,9 @@ import { cn } from "@/lib/utils"
 
 export function DashboardContent() {
   const { weapons, stats } = useCamoData()
+  const { getOwnedCount } = useBasicCamoData()
   const [totalView, setTotalView] = useState<"gold" | "diamond">("gold")
+  const [grindView, setGrindView] = useState<"gold" | "diamond">("gold")
   const grinds = weapons
     .filter((w) => !w.diamond)
     .map((w) => {
@@ -50,6 +53,14 @@ export function DashboardContent() {
       return { ...w, diamondPct, diamondRemaining: Math.max(0, target - current), diamondReq: req }
     })
     .sort((a, b) => b.diamondPct - a.diamondPct)
+  const goldGrinds = weapons
+    .filter((w) => !w.gold)
+    .map((w) => {
+      const goldCount = getOwnedCount(w.id)
+      const goldPct = Math.round((goldCount / BASIC_CAMO_TOTAL) * 100)
+      return { ...w, goldCount, goldPct }
+    })
+    .sort((a, b) => b.goldPct - a.goldPct)
   const { camoStats } = useSeasonalData()
   const { camoStats: dmzCamoStats } = useDmzData()
   const dmzOwned = dmzCamoStats.reduce((sum, c) => sum + c.ownedCount, 0)
@@ -375,51 +386,108 @@ export function DashboardContent() {
           </div>
 
           {/* Recommended Grind — tall block, matches the combined height of the two stacked cards */}
-          <div className="relative flex h-[783px] flex-col overflow-hidden rounded-2xl border border-diamond/25 glass p-6 glow-diamond-sm lg:w-80 lg:shrink-0">
+          <div
+            className={cn(
+              "relative flex h-[783px] flex-col overflow-hidden rounded-2xl border glass p-6 transition-colors duration-300 lg:w-80 lg:shrink-0",
+              grindView === "diamond" ? "border-diamond/25 glow-diamond-sm" : "border-gold/25 glow-gold-sm"
+            )}
+          >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Gem className="size-4 text-diamond" />
+                {grindView === "diamond" ? (
+                  <Gem className="size-4 text-diamond" />
+                ) : (
+                  <Trophy className="size-4 text-gold" />
+                )}
                 <h2 className="text-lg font-medium">Recommended Grind</h2>
               </div>
-              <Link
-                href="/weapons?status=closest-diamond"
-                className="text-xs text-diamond hover:underline"
-              >
-                View all
-              </Link>
+              <Select value={grindView} onValueChange={(v) => setGrindView(v as "gold" | "diamond")}>
+                <SelectTrigger
+                  size="sm"
+                  className={cn(
+                    "h-7 gap-1.5 rounded-full border px-3 font-mono text-xs font-semibold uppercase tracking-widest",
+                    grindView === "diamond"
+                      ? "border-diamond/40 bg-diamond/10 text-diamond glow-diamond-sm"
+                      : "border-gold/40 bg-gold/10 text-gold glow-gold-sm"
+                  )}
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="min-w-28 border-border/70 bg-popover">
+                  <SelectItem value="gold" className="font-mono text-xs uppercase tracking-widest text-gold data-highlighted:bg-gold/10">
+                    Gold
+                  </SelectItem>
+                  <SelectItem value="diamond" className="font-mono text-xs uppercase tracking-widest text-diamond data-highlighted:bg-diamond/10">
+                    Diamond
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
-              Closest weapons to Diamond
+              {grindView === "diamond" ? "Closest weapons to Diamond" : "Closest weapons to Gold"}
             </p>
             <div
               className="mt-5 min-h-0 flex-1 space-y-3 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
             >
-              {grinds.length === 0 && (
-                <p className="text-sm text-muted-foreground">
-                  Every weapon is already Diamond — nothing left to grind here.
-                </p>
+              {grindView === "diamond" ? (
+                <>
+                  {grinds.length === 0 && (
+                    <p className="text-sm text-muted-foreground">
+                      Every weapon is already Diamond — nothing left to grind here.
+                    </p>
+                  )}
+                  {grinds.map((w) => (
+                    <Link
+                      key={w.id}
+                      href={`/weapons/${w.id}`}
+                      className="group flex items-center gap-3 rounded-xl border border-border/60 bg-secondary/30 p-3 transition-colors hover:border-diamond/40 hover:bg-secondary/60"
+                    >
+                      <div className="relative h-10 w-16 shrink-0">
+                        <Image src={w.image} alt={w.name} fill className="object-contain" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="truncate text-sm font-medium">{w.name}</span>
+                          <span className="font-mono text-xs text-diamond">{w.diamondPct}%</span>
+                        </div>
+                        <GoldBar value={w.diamondPct} tone="diamond" className="mt-1.5" />
+                        <span className="mt-1.5 block text-[11px] text-muted-foreground">
+                          {grindRemainingLabel(w.diamondReq, w.diamondRemaining)}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </>
+              ) : (
+                <>
+                  {goldGrinds.length === 0 && (
+                    <p className="text-sm text-muted-foreground">
+                      Every weapon is already Gold — nothing left to grind here.
+                    </p>
+                  )}
+                  {goldGrinds.map((w) => (
+                    <Link
+                      key={w.id}
+                      href={`/weapons/${w.id}`}
+                      className="group flex items-center gap-3 rounded-xl border border-border/60 bg-secondary/30 p-3 transition-colors hover:border-gold/40 hover:bg-secondary/60"
+                    >
+                      <div className="relative h-10 w-16 shrink-0">
+                        <Image src={w.image} alt={w.name} fill className="object-contain" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="truncate text-sm font-medium">{w.name}</span>
+                          <span className="font-mono text-xs text-gold">{w.goldPct}%</span>
+                        </div>
+                        <GoldBar value={w.goldPct} tone="gold" className="mt-1.5" />
+                        <span className="mt-1.5 block text-[11px] text-muted-foreground">
+                          {w.goldCount}/{BASIC_CAMO_TOTAL} camos
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </>
               )}
-              {grinds.map((w) => (
-                <Link
-                  key={w.id}
-                  href={`/weapons/${w.id}`}
-                  className="group flex items-center gap-3 rounded-xl border border-border/60 bg-secondary/30 p-3 transition-colors hover:border-diamond/40 hover:bg-secondary/60"
-                >
-                  <div className="relative h-10 w-16 shrink-0">
-                    <Image src={w.image} alt={w.name} fill className="object-contain" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between">
-                      <span className="truncate text-sm font-medium">{w.name}</span>
-                      <span className="font-mono text-xs text-diamond">{w.diamondPct}%</span>
-                    </div>
-                    <GoldBar value={w.diamondPct} tone="diamond" className="mt-1.5" />
-                    <span className="mt-1.5 block text-[11px] text-muted-foreground">
-                      {grindRemainingLabel(w.diamondReq, w.diamondRemaining)}
-                    </span>
-                  </div>
-                </Link>
-              ))}
             </div>
           </div>
         </div>
