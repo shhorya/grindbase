@@ -388,7 +388,7 @@ export function DashboardContent() {
           {/* Recommended Grind — tall block, matches the combined height of the two stacked cards */}
           <div
             className={cn(
-              "relative flex h-[783px] flex-col overflow-hidden rounded-2xl border glass p-6 transition-colors duration-300 lg:w-80 lg:shrink-0",
+              "relative flex h-[780px] flex-col overflow-hidden rounded-2xl border glass p-6 transition-colors duration-300 lg:w-80 lg:shrink-0",
               grindView === "diamond" ? "border-diamond/25 glow-diamond-sm" : "border-gold/25 glow-gold-sm"
             )}
           >
