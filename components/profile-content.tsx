@@ -76,7 +76,7 @@ function StatPill({
         <Icon className="size-4" />
       </span>
       <div>
-        <div className="font-mono text-lg font-semibold leading-none whitespace-nowrap">{value}</div>
+        <div className="font-mono text-lg font-semibold leading-none whitespace-nowrap sm:text-base lg:text-lg">{value}</div>
         <div className="mt-0.5 text-xs whitespace-nowrap text-muted-foreground">{label}</div>
       </div>
     </Link>
@@ -461,7 +461,7 @@ export function ProfileContent({
           </div>
 
           {/* Stat row — CSS grid so it's always evenly spread edge-to-edge */}
-          <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-5 border-t border-border/60 pt-6 sm:grid-cols-4 lg:grid-cols-7">
+          <div className="mt-8 grid grid-cols-2 gap-x-3 gap-y-5 border-t border-border/60 pt-6 sm:grid-cols-4 lg:grid-cols-7 lg:gap-x-4">
             <StatPill
               icon={Trophy}
               value={stats.goldCount}
@@ -506,7 +506,7 @@ export function ProfileContent({
             />
             <StatPill
               icon={Layers}
-              value={`${allCamosOwned}/${allCamosTotal}`}
+              value={`${allCamosOwned.toLocaleString()}/${allCamosTotal.toLocaleString()}`}
               label="Total Camos"
               toneClass="border-gold/40 bg-gold/10 text-gold"
               href="/weapons"
