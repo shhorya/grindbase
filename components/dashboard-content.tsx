@@ -393,19 +393,19 @@ export function DashboardContent() {
             )}
           >
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+              <div className="flex min-w-0 items-center gap-1.5">
                 {grindView === "diamond" ? (
-                  <Gem className="size-4 text-diamond" />
+                  <Gem className="size-4 shrink-0 text-diamond" />
                 ) : (
-                  <Trophy className="size-4 text-gold" />
+                  <Trophy className="size-4 shrink-0 text-gold" />
                 )}
-                <h2 className="text-lg font-medium">Recommended Grind</h2>
+                <h2 className="whitespace-nowrap text-sm font-medium">Recommended Grind</h2>
               </div>
               <Select value={grindView} onValueChange={(v) => setGrindView(v as "gold" | "diamond")}>
                 <SelectTrigger
                   size="sm"
                   className={cn(
-                    "h-7 gap-1.5 rounded-full border px-3 font-mono text-xs font-semibold uppercase tracking-widest",
+                    "h-7 shrink-0 gap-1 rounded-full border px-2 font-mono text-[11px] font-semibold uppercase tracking-widest",
                     grindView === "diamond"
                       ? "border-diamond/40 bg-diamond/10 text-diamond glow-diamond-sm"
                       : "border-gold/40 bg-gold/10 text-gold glow-gold-sm"
