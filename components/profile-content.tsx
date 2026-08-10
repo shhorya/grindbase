@@ -66,18 +66,18 @@ function StatPill({
   href: string
 }) {
   return (
-    <Link href={href} className="group flex items-center gap-2.5 transition-opacity hover:opacity-80">
+    <Link href={href} className="group flex shrink-0 items-center gap-1.5 transition-opacity hover:opacity-80">
       <span
         className={cn(
-          "flex size-9 shrink-0 items-center justify-center rounded-lg border transition-transform group-hover:scale-105",
+          "flex size-7 shrink-0 items-center justify-center rounded-lg border transition-transform group-hover:scale-105",
           toneClass
         )}
       >
-        <Icon className="size-4" />
+        <Icon className="size-3" />
       </span>
       <div>
-        <div className="font-mono text-lg font-semibold leading-none">{value}</div>
-        <div className="mt-0.5 text-xs text-muted-foreground">{label}</div>
+        <div className="font-mono text-sm font-semibold leading-none whitespace-nowrap">{value}</div>
+        <div className="mt-0.5 text-[10px] whitespace-nowrap text-muted-foreground">{label}</div>
       </div>
     </Link>
   )
@@ -489,7 +489,7 @@ export function ProfileContent({
           </div>
 
           {/* Horizontal stat strip */}
-          <div className="mt-8 flex items-center gap-x-6 overflow-x-auto border-t border-border/60 pt-6 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden xl:gap-x-8">
+          <div className="mt-8 flex items-center gap-x-4 border-t border-border/60 pt-6 sm:gap-x-5">
             <StatPill
               icon={Trophy}
               value={stats.goldCount}
