@@ -148,7 +148,7 @@ export default function LandingPage() {
           <div className="absolute inset-0 bg-gradient-to-r from-background via-background/40 to-transparent" />
         </div>
 
-        <div className="relative mx-auto grid max-w-7xl items-start gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:py-28">
+        <div className="relative mx-auto grid max-w-7xl items-start gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2">
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-xs font-medium text-gold">
               <Zap className="size-3.5" />
