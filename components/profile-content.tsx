@@ -53,7 +53,36 @@ function clampTier(value: number) {
 }
 
 function StatPill({
+  icon: Icon,function StatPill({
   icon: Icon,
+  value,
+  label,
+  toneClass,
+  href,
+}: {
+  icon: LucideIcon
+  value: string | number
+  label: string
+  toneClass: string
+  href: string
+}) {
+  return (
+    <Link href={href} className="group flex shrink-0 items-center gap-2.5 transition-opacity hover:opacity-80">
+      <span
+        className={cn(
+          "flex size-9 shrink-0 items-center justify-center rounded-lg border transition-transform group-hover:scale-105",
+          toneClass
+        )}
+      >
+        <Icon className="size-4" />
+      </span>
+      <div>
+        <div className="font-mono text-lg font-semibold leading-none whitespace-nowrap">{value}</div>
+        <div className="mt-0.5 text-xs whitespace-nowrap text-muted-foreground">{label}</div>
+      </div>
+    </Link>
+  )
+}
   value,
   label,
   toneClass,
@@ -489,7 +518,7 @@ export function ProfileContent({
           </div>
 
           {/* Horizontal stat strip */}
-          <div className="mt-8 flex items-center gap-x-4 border-t border-border/60 pt-6 sm:gap-x-5">
+          <div className="mt-8 flex items-center justify-between gap-x-4 border-t border-border/60 pt-6">
             <StatPill
               icon={Trophy}
               value={stats.goldCount}
