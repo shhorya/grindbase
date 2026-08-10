@@ -11,6 +11,7 @@ import {
   Copy,
   Diamond,
   Flame,
+  Layers,
   Lock,
   LogOut,
   Medal,
@@ -24,6 +25,7 @@ import { HudNav } from "@/components/hud-nav"
 import { GoldBar } from "@/components/gold-bar"
 import { createClient } from "@/lib/supabase/client"
 import { useCamoData } from "@/lib/use-camo-data"
+import { useBasicCamoData, BASIC_CAMO_TOTAL } from "@/lib/use-basic-camo-data"
 import { useSeasonalData } from "@/lib/use-seasonal-data"
 import { useDmzData } from "@/lib/use-dmz-data"
 import { categories, categoryProgress } from "@/lib/data"
@@ -102,6 +104,7 @@ export function ProfileContent({
   const { weapons, stats } = useCamoData()
   const { camoStats: seasonalCamoStats, isOwned: isSeasonalOwned } = useSeasonalData()
   const { camoStats: dmzCamoStats, isOwned: isDmzOwned } = useDmzData()
+  const { getOwnedCount: getBasicCamoCount } = useBasicCamoData()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [avatar, setAvatar] = useState(avatarUrl)
@@ -136,6 +139,28 @@ export function ProfileContent({
   const dmzCompleted = dmzCamoStats.filter(
     (c) => c.totalEligible > 0 && c.ownedCount === c.totalEligible
   ).length
+
+  // Grand total across every camo in the game: each weapon's 60 Basic
+  // Camos, every Seasonal and DMZ camo it's eligible for, and its 4
+  // "special" tiers (Gold/Platinum/Diamond/Damascus), each counted per weapon.
+  const trackedWeapons = weapons.filter((w) => !w.noCamos)
+  const basicCamosOwned = trackedWeapons.reduce(
+    (sum, w) => sum + (w.gold ? BASIC_CAMO_TOTAL : getBasicCamoCount(w.id)),
+    0
+  )
+  const basicCamosTotal = trackedWeapons.length * BASIC_CAMO_TOTAL
+
+  const seasonalCamosTotal = seasonalCamoStats.reduce((sum, c) => sum + c.totalEligible, 0)
+  const seasonalCamosOwned = seasonalCamoStats.reduce((sum, c) => sum + c.ownedCount, 0)
+
+  const dmzCamosTotal = dmzCamoStats.reduce((sum, c) => sum + c.totalEligible, 0)
+  const dmzCamosOwned = dmzCamoStats.reduce((sum, c) => sum + c.ownedCount, 0)
+
+  const specialOwned = stats.goldCount + stats.platinumCount + stats.diamondCount + damascusWeaponCount
+  const specialTotal = stats.weaponsTotal * 4
+
+  const allCamosOwned = basicCamosOwned + seasonalCamosOwned + dmzCamosOwned + specialOwned
+  const allCamosTotal = basicCamosTotal + seasonalCamosTotal + dmzCamosTotal + specialTotal
 
   // Tie-break order: highest completionist tier reached (Diamond > Platinum
   // > Gold > none) → most seasonal+DMZ camos owned → most of the first 10
@@ -507,6 +532,14 @@ export function ProfileContent({
               label="DMZ"
               toneClass="border-gold/40 bg-gold/10 text-gold"
               href="/dmz"
+            />
+            <div className="hidden h-9 w-px bg-border/60 sm:block" />
+            <StatPill
+              icon={Layers}
+              value={`${allCamosOwned}/${allCamosTotal}`}
+              label="Total Camos"
+              toneClass="border-gold/40 bg-gold/10 text-gold"
+              href="/weapons"
             />
           </div>
         </div>
