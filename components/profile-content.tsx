@@ -489,7 +489,7 @@ export function ProfileContent({
           </div>
 
           {/* Horizontal stat strip */}
-          <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4 border-t border-border/60 pt-6">
+          <div className="mt-8 flex items-center gap-x-6 overflow-x-auto border-t border-border/60 pt-6 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden xl:gap-x-8">
             <StatPill
               icon={Trophy}
               value={stats.goldCount}
