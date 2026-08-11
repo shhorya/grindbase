@@ -74,7 +74,7 @@ export function CompletionistWidget({
         </span>
       </div>
 
-      <div className="flex flex-col gap-2 p-3 sm:flex-row">
+      <div className="flex flex-col gap-2 p-3 pb-0 sm:flex-row">
         {BASIC_CAMO_CATEGORIES.map((category) => {
           const owned = ownedInCategory(category)
           const complete = owned === 10
@@ -83,7 +83,8 @@ export function CompletionistWidget({
             <div
               key={category}
               className={cn(
-                "group flex flex-1 items-center gap-2 rounded-xl border px-2.5 py-2 transition-all",
+                "group flex flex-1 items-center gap-2 border px-2.5 py-2 transition-all mb-3",
+                isExpanded ? "rounded-t-xl rounded-b-none border-b-0 mb-0" : "rounded-xl",
                 complete
                   ? "border-gold/50 bg-gold/10 glow-gold-sm"
                   : isExpanded
@@ -125,7 +126,7 @@ export function CompletionistWidget({
       </div>
 
       {expanded && (
-        <div className="border-t border-border/60 p-4">
+        <div className="mx-3 mb-3 -mt-2 rounded-b-xl border border-t-0 border-gold/40 bg-gold/5 p-4">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-gold">{expanded}</span>
             <button
