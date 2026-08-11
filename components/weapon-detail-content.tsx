@@ -7,6 +7,7 @@ import { HudNav } from "@/components/hud-nav"
 import { GoldBar } from "@/components/gold-bar"
 import { DraggableProgressBar } from "@/components/draggable-progress-bar"
 import { CompletionistWidget } from "@/components/completionist-widget"
+import { useBasicCamoData } from "@/lib/use-basic-camo-data"
 import { useCamoData } from "@/lib/use-camo-data"
 import { useSeasonalData } from "@/lib/use-seasonal-data"
 import { useDmzData } from "@/lib/use-dmz-data"
@@ -22,6 +23,7 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
   const { weapons, updateWeapon } = useCamoData()
   const { camoStats, isOwned, toggle, getMatchProgress, setMatchProgress } = useSeasonalData()
   const { camoStats: dmzCamoStats, isOwned: isDmzOwned, toggle: toggleDmz } = useDmzData()
+  const { camoIds: basicCamoIds, setManyOwned: setManyBasicCamosOwned } = useBasicCamoData()
 
   const weapon = weapons.find((w) => w.id === weaponId)
   if (!weapon) return null
@@ -74,6 +76,12 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
   const ownedDmzCamos = eligibleDmzCamos.filter((c) => isDmzOwned(weapon.id, c.id))
 
   const damascusUnlocked = hasDamascus(weapons, DAMASCUS_OG_WEAPON_IDS)
+
+  function handleGoldToggle() {
+    const next = !weapon!.gold
+    setManyBasicCamosOwned(weapon!.id, basicCamoIds, next)
+    toggleField("gold")
+  }
 
   function toggleField(field: "gold" | "platinum" | "diamond") {
     const current = weapon!
@@ -196,14 +204,7 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
 
         {/* Tier toggles */}
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <TierToggle
-            label="Gold"
-            tone="gold"
-            active={weapon.gold}
-            onClick={() =>
-              document.getElementById("completionist-widget")?.scrollIntoView({ behavior: "smooth", block: "center" })
-            }
-          />
+          <TierToggle label="Gold" tone="gold" active={weapon.gold} onClick={handleGoldToggle} />
           <TierToggle
             label="Platinum"
             tone="platinum"
