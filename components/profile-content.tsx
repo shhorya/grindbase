@@ -78,14 +78,7 @@ function StatPill({
         <Icon className="size-4" />
       </span>
       <div className="min-w-0">
-        <div
-          className={cn(
-            "font-mono font-semibold leading-none",
-            compact ? "text-sm" : "text-lg whitespace-nowrap"
-          )}
-        >
-          {value}
-        </div>
+        <div className="font-mono text-lg font-semibold leading-none whitespace-nowrap">{value}</div>
         <div className="mt-0.5 whitespace-nowrap text-xs text-muted-foreground">{label}</div>
       </div>
     </Link>
@@ -521,7 +514,6 @@ export function ProfileContent({
               label="Total Camos"
               toneClass="border-gold/40 bg-gold/10 text-gold"
               href="/weapons"
-              compact
             />
           </div>
         </div>
