@@ -74,7 +74,7 @@ export function CompletionistWidget({
         </span>
       </div>
 
-      <div className="flex flex-col gap-2 p-3 pb-0 sm:flex-row">
+      <div className="flex flex-col gap-2 p-3 sm:flex-row">
         {BASIC_CAMO_CATEGORIES.map((category) => {
           const owned = ownedInCategory(category)
           const complete = owned === 10
@@ -83,90 +83,107 @@ export function CompletionistWidget({
             <div
               key={category}
               className={cn(
-                "group flex flex-1 items-center gap-2 border px-2.5 py-2 transition-all mb-3",
-                isExpanded ? "rounded-t-xl rounded-b-none border-b-0 mb-0" : "rounded-xl",
-                complete
-                  ? "border-gold/50 bg-gold/10 glow-gold-sm"
-                  : isExpanded
-                    ? "border-gold/40 bg-gold/5"
-                    : "border-border/60 bg-secondary/20 hover:border-gold/40 hover:bg-gold/5 hover:glow-gold-sm"
+                "flex-1",
+                isExpanded &&
+                  cn(
+                    "rounded-xl border",
+                    complete ? "border-gold/50 bg-gold/10 glow-gold-sm" : "border-gold/40 bg-gold/5"
+                  )
               )}
             >
-              <button
-                type="button"
-                onClick={() => handleToggleCategoryComplete(category)}
-                className="flex min-w-0 flex-1 items-center gap-2 text-left"
-                aria-label={`Toggle all ${category} camos`}
+              <div
+                className={cn(
+                  "group flex items-center gap-2 px-2.5 py-2 transition-all",
+                  isExpanded
+                    ? "border-b border-gold/20"
+                    : cn(
+                        "rounded-xl border",
+                        complete
+                          ? "border-gold/50 bg-gold/10 glow-gold-sm"
+                          : "border-border/60 bg-secondary/20 hover:border-gold/40 hover:bg-gold/5 hover:glow-gold-sm"
+                      )
+                )}
               >
-                <div
-                  className={cn(
-                    "relative size-9 shrink-0 overflow-hidden rounded-md border",
-                    complete ? "border-gold/50" : "border-border/50 group-hover:border-gold/40"
-                  )}
+                <button
+                  type="button"
+                  onClick={() => handleToggleCategoryComplete(category)}
+                  className="flex min-w-0 flex-1 items-center gap-2 text-left"
+                  aria-label={`Toggle all ${category} camos`}
                 >
-                  <Image src={BASIC_CAMO_CATEGORY_IMAGES[category]} alt={category} fill className="object-cover" />
-                </div>
-                <div className="min-w-0">
-                  <div className={cn("truncate text-xs font-medium", complete && "text-gold")}>{category}</div>
-                  <div className="font-mono text-[10px] text-muted-foreground">{owned}/10</div>
-                </div>
-              </button>
+                  <div
+                    className={cn(
+                      "relative size-9 shrink-0 overflow-hidden rounded-md border",
+                      complete ? "border-gold/50" : "border-border/50 group-hover:border-gold/40"
+                    )}
+                  >
+                    <Image src={BASIC_CAMO_CATEGORY_IMAGES[category]} alt={category} fill className="object-cover" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className={cn("truncate text-xs font-medium", complete && "text-gold")}>{category}</div>
+                    <div className="font-mono text-[10px] text-muted-foreground">{owned}/10</div>
+                  </div>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => setExpanded(isExpanded ? null : category)}
-                aria-label={isExpanded ? `Collapse ${category}` : `Expand ${category}`}
-                className="flex size-6 shrink-0 items-center justify-center rounded-md text-foreground opacity-40 transition-all duration-200 hover:scale-110 hover:opacity-100 hover:text-gold"
-              >
-                <ChevronDown className={cn("size-4 transition-transform duration-200", isExpanded && "rotate-180")} />
-              </button>
+                <button
+                  type="button"
+                  onClick={() => setExpanded(isExpanded ? null : category)}
+                  aria-label={isExpanded ? `Collapse ${category}` : `Expand ${category}`}
+                  className="flex size-6 shrink-0 items-center justify-center rounded-md text-foreground opacity-40 transition-all duration-200 hover:scale-110 hover:opacity-100 hover:text-gold"
+                >
+                  <ChevronDown className={cn("size-4 transition-transform duration-200", isExpanded && "rotate-180")} />
+                </button>
+              </div>
+
+              {isExpanded && <CategoryDrawer category={category} />}
             </div>
           )
         })}
       </div>
-
-      {expanded && (
-        <div className="mx-3 mb-3 -mt-2 rounded-b-xl border border-t-0 border-gold/40 bg-gold/5 p-4">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-gold">{expanded}</span>
-            <button
-              type="button"
-              onClick={() => handleToggleCategoryComplete(expanded)}
-              className="rounded-lg border border-gold/40 bg-gold/10 px-2.5 py-1 text-[11px] font-medium text-gold hover:bg-gold/20"
-            >
-              {ownedInCategory(expanded) === 10 ? "Lock All" : "Unlock All"}
-            </button>
           </div>
-          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
-            {categoryCamos(expanded).map((camo) => {
-              const owned = weapon.gold || isOwned(weapon.id, camo.id)
-              return (
-                <button
-                  key={camo.id}
-                  type="button"
-                  onClick={() => handleToggleCamo(expanded, camo.tier)}
-                  className={cn(
-                    "group/tile relative overflow-hidden rounded-xl border p-3 text-left transition-all",
-                    owned
-                      ? "border-gold/50 bg-gold/5 hover:border-gold/70"
-                      : "border-border/60 bg-secondary/20 opacity-70 hover:opacity-100"
-                  )}
-                >
-                  <div className="relative h-16 w-full overflow-hidden rounded-lg">
-                    <Image src={camo.texture} alt={camo.name} fill className="object-cover" />
-                    {owned && (
-                      <span className="absolute right-1.5 top-1.5 flex size-5 items-center justify-center rounded-full bg-gold text-primary-foreground">
-                        <Check className="size-3" />
-                      </span>
-                    )}
-                  </div>
-                  <span className="mt-2 block truncate text-xs font-medium">{camo.name}</span>
-                </button>
-              )
-            })}
-          </div>
-        </div>
-      )}
-    </div>
   )
+
+  function CategoryDrawer({ category }: { category: BasicCamoCategory }) {
+    return (
+      <div className="p-4">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-semibold text-gold">{category}</span>
+          <button
+            type="button"
+            onClick={() => handleToggleCategoryComplete(category)}
+            className="rounded-lg border border-gold/40 bg-gold/10 px-2.5 py-1 text-[11px] font-medium text-gold hover:bg-gold/20"
+          >
+            {ownedInCategory(category) === 10 ? "Lock All" : "Unlock All"}
+          </button>
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
+          {categoryCamos(category).map((camo) => {
+            const owned = weapon.gold || isOwned(weapon.id, camo.id)
+            return (
+              <button
+                key={camo.id}
+                type="button"
+                onClick={() => handleToggleCamo(category, camo.tier)}
+                className={cn(
+                  "group/tile relative overflow-hidden rounded-xl border p-3 text-left transition-all",
+                  owned
+                    ? "border-gold/50 bg-gold/5 hover:border-gold/70"
+                    : "border-border/60 bg-secondary/20 opacity-70 hover:opacity-100"
+                )}
+              >
+                <div className="relative h-16 w-full overflow-hidden rounded-lg">
+                  <Image src={camo.texture} alt={camo.name} fill className="object-cover" />
+                  {owned && (
+                    <span className="absolute right-1.5 top-1.5 flex size-5 items-center justify-center rounded-full bg-gold text-primary-foreground">
+                      <Check className="size-3" />
+                    </span>
+                  )}
+                </div>
+                <span className="mt-2 block truncate text-xs font-medium">{camo.name}</span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+    )
+  }
 }
