@@ -470,7 +470,7 @@ export function ProfileContent({
           </div>
 
           {/* Stat row */}
-          <div className="mt-8 flex flex-wrap items-center gap-x-3 gap-y-4 border-t border-border/60 pt-6">
+          <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-4 border-t border-border/60 pt-6">
             <StatPill
               icon={Trophy}
               value={stats.goldCount}
