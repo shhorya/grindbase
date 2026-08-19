@@ -114,7 +114,7 @@ export function WeaponsExplorer({
 
         if (categoryHasPlatinum) {
           // Category already earned Platinum before this weapon existed
-          // (or before you golded it) — catch it up automatically.
+          // (or before you golded it) - catch it up automatically.
           patch.platinum = true
         } else {
           // Does golding this weapon complete the category for the first

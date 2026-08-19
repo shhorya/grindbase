@@ -252,7 +252,7 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
           </Link>
         </div>
 
-        {/* Completionist — the 60 Basic Camos that drive this weapon's Gold */}
+        {/* Completionist - the 60 Basic Camos that drive this weapon's Gold */}
         <div className="mt-6">
           <CompletionistWidget weapon={weapon} onFlipGold={() => toggleField("gold")} />
         </div>
