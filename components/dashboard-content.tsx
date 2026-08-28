@@ -39,7 +39,7 @@ import { useStarredDmzCamo } from "@/lib/starred-dmz-camo-store"
 import { cn } from "@/lib/utils"
 
 export function DashboardContent() {
-  const { weapons, stats } = useCamoData()
+  const { weapons, stats, hydrated: camoHydrated } = useCamoData()
   const { getOwnedCount } = useBasicCamoData()
   const [totalView, setTotalView] = useState<"gold" | "diamond">("gold")
   const [grindView, setGrindView] = useState<"gold" | "diamond">("gold")
@@ -61,12 +61,26 @@ export function DashboardContent() {
       return { ...w, goldCount, goldPct }
     })
     .sort((a, b) => b.goldPct - a.goldPct)
-  const { camoStats } = useSeasonalData()
-  const { camoStats: dmzCamoStats } = useDmzData()
+  const { camoStats, hydrated: seasonalHydrated } = useSeasonalData()
+  const { camoStats: dmzCamoStats, hydrated: dmzHydrated } = useDmzData()
   const dmzOwned = dmzCamoStats.reduce((sum, c) => sum + c.ownedCount, 0)
   const dmzTotal = dmzCamoStats.reduce((sum, c) => sum + c.totalEligible, 0)
   const { starredId } = useStarredCamo()
   const { starredId: dmzStarredId } = useStarredDmzCamo()
+
+  if (!camoHydrated || !seasonalHydrated || !dmzHydrated) {
+    return (
+      <div className="min-h-screen bg-hud-grid">
+        <HudNav />
+        <main className="mx-auto flex max-w-7xl items-center justify-center px-4 py-24 sm:px-6">
+          <div className="flex flex-col items-center gap-3 text-muted-foreground">
+            <span className="size-8 animate-spin rounded-full border-2 border-gold border-t-transparent" />
+            <span className="font-mono text-xs uppercase tracking-widest">Loading arsenal…</span>
+          </div>
+        </main>
+      </div>
+    )
+  }
 
   const starredCamo = camoStats.find((c) => c.id === starredId) ?? null
   const seasonalPct = starredCamo && starredCamo.totalEligible > 0

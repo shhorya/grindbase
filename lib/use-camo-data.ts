@@ -17,8 +17,9 @@ import type { WeaponProgress } from "./progress"
 export type CompleteWeapon = Weapon & WeaponProgress
 
 export function useCamoData() {
-  const { progress, updateWeapon, hydrated } = useWeaponProgress()
-  const { getOwnedCount: getBasicCamoCount } = useBasicCamoData()
+  const { progress, updateWeapon, hydrated: weaponHydrated } = useWeaponProgress()
+  const { getOwnedCount: getBasicCamoCount, hydrated: basicCamoHydrated } = useBasicCamoData()
+  const hydrated = weaponHydrated && basicCamoHydrated
 
   const weapons: CompleteWeapon[] = useMemo(
     () =>
