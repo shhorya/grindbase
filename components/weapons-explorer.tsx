@@ -76,7 +76,7 @@ export function WeaponsExplorer({
     return w.gold
   }
 
-  function handleToggleField(
+    function handleToggleField(
     weaponId: string,
     field: "gold" | "platinum" | "diamond"
   ) {
@@ -90,12 +90,10 @@ export function WeaponsExplorer({
       if (next) {
         const categoryHasPlatinum = categoryWeapons.some((w) => w.platinum)
         if (!categoryHasPlatinum) {
-          // First Platinum in this category — turn on every weapon in it.
           categoryWeapons.forEach((w) => {
             updateWeapon(w.id, { gold: true, platinum: true, completion: 100 })
           })
         } else {
-          // Category already has Platinum — per-weapon only from here on.
           updateWeapon(weaponId, { gold: true, platinum: true, completion: 100 })
         }
       } else {
@@ -133,7 +131,6 @@ export function WeaponsExplorer({
       }
 
       if (!next) {
-        // Only clears this weapon's Platinum — siblings untouched.
         patch.platinum = false
         patch.diamond = false
       }

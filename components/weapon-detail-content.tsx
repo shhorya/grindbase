@@ -83,7 +83,7 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
     toggleField("gold")
   }
 
-  function toggleField(field: "gold" | "platinum" | "diamond") {
+    function toggleField(field: "gold" | "platinum" | "diamond") {
     const current = weapon!
     const next = !current[field]
 
