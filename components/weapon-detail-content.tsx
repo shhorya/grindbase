@@ -222,7 +222,7 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
             className={cn(
               "group flex flex-col items-center gap-2 rounded-2xl border p-4 text-center transition-all",
               damascusUnlocked
-                ? "border-purple-400/50 bg-gradient-to-br from-red-500/10 to-blue-500/10 glow-damascus-sm"
+                ? "border-purple-400/50 bg-linear-to-br from-red-500/10 to-blue-500/10 glow-damascus-sm"
                 : "border-border/70 bg-secondary/20 hover:border-border"
             )}
           >

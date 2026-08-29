@@ -262,7 +262,7 @@ export function WeaponsExplorer({
                       : initialTier === "diamond"
                         ? "text-diamond"
                         : initialTier === "damascus"
-                          ? "bg-gradient-to-r from-red-400 via-purple-400 to-blue-400 bg-clip-text text-transparent"
+                          ? "bg-linear-to-r from-red-400 via-purple-400 to-blue-400 bg-clip-text text-transparent"
                           : "text-gold"
                   )}
                 >
