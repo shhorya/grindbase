@@ -227,69 +227,32 @@ export function WeaponsExplorer({
         </div>
       )}
 
-      {tierBanner && (
-        <div
-          className={cn(
-            "hud-corner mb-5 flex items-center gap-6 rounded-2xl border border-border/70 glass-strong p-6",
-            initialTier === "platinum"
-              ? "glow-platinum-sm"
-              : initialTier === "diamond"
-                ? "glow-diamond-sm"
-                : initialTier === "damascus"
-                  ? "glow-damascus-sm"
-                  : "glow-gold-sm"
-          )}
-        >
-          <div className="relative size-24 shrink-0 overflow-hidden rounded-2xl border border-border/60">
-            <Image
-              src={tierBanner.texture}
-              alt={tierBanner.label}
-              fill
-              className="object-cover"
-            />
+            {tierBanner && (
+        <div className="mb-5 flex items-center gap-4 rounded-2xl border border-border/70 glass p-5">
+          <div className="relative size-14 shrink-0 overflow-hidden rounded-xl border border-border/50">
+            <Image src={tierBanner.texture} alt={tierBanner.label} fill className="object-cover" />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="flex items-baseline justify-between gap-4">
-              <h2 className={cn("text-3xl font-bold tracking-tight sm:text-4xl", tierBanner.glow)}>
-                {tierBanner.label}
-              </h2>
-              <div className="shrink-0 text-right">
-                <div
-                  className={cn(
-                    "font-mono text-2xl font-semibold",
-                    initialTier === "platinum"
-                      ? "text-platinum"
-                      : initialTier === "diamond"
-                        ? "text-diamond"
-                        : initialTier === "damascus"
-                          ? "bg-linear-to-r from-red-400 via-purple-400 to-blue-400 bg-clip-text text-transparent"
-                          : "text-gold"
-                  )}
-                >
-                  {tierPct}%
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {tierOwnedCount}/{weapons.length} weapons
-                </p>
-              </div>
-            </div>
-            <div className="mt-3">
-              <GoldBar
-                value={tierPct}
-                tone={
+            <h2 className={cn("text-lg font-medium", tierBanner.glow)}>{tierBanner.label}</h2>
+            <div className="mt-1.5 flex items-center gap-3">
+              <span
+                className={cn(
+                  "font-mono text-sm font-semibold",
                   initialTier === "platinum"
-                    ? "platinum"
+                    ? "text-platinum"
                     : initialTier === "diamond"
-                      ? "diamond"
+                      ? "text-diamond"
                       : initialTier === "damascus"
-                        ? "damascus"
-                        : "gold"
-                }
-                className="h-2"
-              />
+                        ? "bg-linear-to-r from-red-400 via-purple-400 to-blue-400 bg-clip-text text-transparent"
+                        : "text-gold"
+                )}
+              >
+                {tierOwnedCount}/{weapons.length}
+              </span>
+              <span className="text-sm text-muted-foreground">weapons · {tierPct}%</span>
             </div>
             {initialTier === "diamond" && (
-              <p className="mt-2 text-xs text-muted-foreground">
+              <p className="mt-1 text-xs text-muted-foreground">
                 {category === "all"
                   ? "Select a category to see its exact Diamond requirement"
                   : `Requirement: ${getDiamondRequirementLabel(category)}`}
