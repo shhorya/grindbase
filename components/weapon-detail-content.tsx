@@ -133,8 +133,10 @@ export function WeaponDetailContent({ weaponId }: { weaponId: string }) {
       }
 
       if (!next) {
-        // Only clears this weapon's Platinum — siblings untouched.
+        // Losing Gold means losing everything built on top of it.
         patch.platinum = false
+        patch.diamond = false
+        patch.diamondProgress = 0
       }
     }
     if (field === "diamond") {
