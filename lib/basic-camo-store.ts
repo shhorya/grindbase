@@ -3,6 +3,8 @@
 import { useCallback, useSyncExternalStore } from "react"
 import { createClient } from "./supabase/client"
 
+const CACHE_KEY = "grindbase-cache-basic-camo-progress"
+
 type SupabaseClient = ReturnType<typeof createClient>
 type RealtimeChannel = ReturnType<SupabaseClient["channel"]>
 
@@ -10,8 +12,28 @@ function key(weaponId: string, camoId: string) {
   return `${weaponId}:${camoId}`
 }
 
-let state: Record<string, boolean> = {}
-let isHydrated = false
+function loadCache(): Record<string, boolean> | null {
+  if (typeof window === "undefined") return null
+  try {
+    const raw = localStorage.getItem(CACHE_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
+}
+
+function saveCache(data: Record<string, boolean>) {
+  if (typeof window === "undefined") return
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(data))
+  } catch {
+    // Storage full/unavailable — cache is a nice-to-have, not critical.
+  }
+}
+
+const cachedInitial = loadCache()
+let state: Record<string, boolean> = cachedInitial ?? {}
+let isHydrated = cachedInitial !== null
 let currentUserId: string | null = null
 let authWired = false
 let realtimeChannel: RealtimeChannel | null = null
@@ -66,6 +88,7 @@ async function hydrateForUser(userId: string) {
   })
   state = next
   isHydrated = true
+  saveCache(state)
   emit()
 }
 
@@ -89,6 +112,7 @@ function subscribeRealtime(userId: string) {
         if (!row || !("weapon_id" in row) || !("camo_id" in row)) return
         const k = key(row.weapon_id, row.camo_id)
         state = { ...state, [k]: row.owned ?? false }
+        saveCache(state)
         emit()
       }
     )
@@ -134,6 +158,7 @@ async function toggleInStore(weaponId: string, camoId: string) {
   const k = key(weaponId, camoId)
   const nextOwned = !state[k]
   state = { ...state, [k]: nextOwned }
+  saveCache(state)
   emit()
 
   if (!currentUserId) return
@@ -152,6 +177,7 @@ async function setManyOwnedInStore(weaponId: string, camoIds: string[], owned: b
     nextState[key(weaponId, camoId)] = owned
   })
   state = nextState
+  saveCache(state)
   emit()
 
   if (!currentUserId) return

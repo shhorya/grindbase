@@ -9,6 +9,12 @@ import type { WeaponProgress } from "./progress"
 // existing progress into the cloud the first time that account syncs.
 const LEGACY_STORAGE_KEY = "grindbase-progress"
 
+// Snapshot cache — written every time we get fresh data (cloud fetch,
+// realtime push, or a local edit) and read synchronously on load, so a
+// reload shows real numbers instantly instead of a spinner / zeroed
+// defaults while we wait on the network.
+const CACHE_KEY = "grindbase-cache-weapon-progress"
+
 type SupabaseClient = ReturnType<typeof createClient>
 type RealtimeChannel = ReturnType<SupabaseClient["channel"]>
 
@@ -23,6 +29,25 @@ function buildDefault(): WeaponProgress[] {
     matchesRemaining: 0,
     diamondProgress: 0,
   }))
+}
+
+function loadCache(): WeaponProgress[] | null {
+  if (typeof window === "undefined") return null
+  try {
+    const raw = localStorage.getItem(CACHE_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
+}
+
+function saveCache(data: WeaponProgress[]) {
+  if (typeof window === "undefined") return
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(data))
+  } catch {
+    // Storage full/unavailable — cache is a nice-to-have, not critical.
+  }
 }
 
 function loadLegacyLocalStorage(): WeaponProgress[] | null {
@@ -66,11 +91,15 @@ function fromSupabaseRow(row: any): WeaponProgress {
   }
 }
 
+const cachedInitial = loadCache()
 // One shared piece of data for the whole app — every component reads and
 // writes this same state, now backed by Supabase instead of local storage,
 // so it follows your account across devices.
-let state: WeaponProgress[] = buildDefault()
-let isHydrated = false
+let state: WeaponProgress[] = cachedInitial ?? buildDefault()
+// A cached snapshot means the store is immediately usable — the UI shows
+// real numbers right away, and the cloud fetch below quietly reconciles
+// in the background instead of gating the screen behind a spinner.
+let isHydrated = cachedInitial !== null
 let currentUserId: string | null = null
 let authWired = false
 let realtimeChannel: RealtimeChannel | null = null
@@ -130,6 +159,7 @@ async function hydrateForUser(userId: string) {
   }
 
   isHydrated = true
+  saveCache(state)
   emit()
 }
 
@@ -159,6 +189,7 @@ function subscribeRealtime(userId: string) {
         if (!row || !("weapon_id" in row)) return
         const updated = fromSupabaseRow(row)
         state = state.map((p) => (p.weaponId === updated.weaponId ? updated : p))
+        saveCache(state)
         emit()
       }
     )
@@ -208,6 +239,7 @@ async function updateWeaponInStore(weaponId: string, patch: Partial<WeaponProgre
 
   // Update local state instantly for a responsive UI, then persist.
   state = state.map((p) => (p.weaponId === weaponId ? { ...p, ...finalPatch } : p))
+  saveCache(state)
   emit()
 
   if (!currentUserId) return

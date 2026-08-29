@@ -8,6 +8,11 @@ import { createClient } from "./supabase/client"
 const LEGACY_PROGRESS_KEY = "grindbase-seasonal-progress"
 const LEGACY_MATCH_KEY = "grindbase-seasonal-match-progress"
 
+// Snapshot cache — same idea as progress-store.ts: read synchronously on
+// load so a reload shows real numbers instantly instead of waiting on
+// the network.
+const CACHE_KEY = "grindbase-cache-seasonal-progress"
+
 type SupabaseClient = ReturnType<typeof createClient>
 type RealtimeChannel = ReturnType<SupabaseClient["channel"]>
 
@@ -43,8 +48,28 @@ function loadLegacy(): Store {
   return { progress, matchProgress }
 }
 
-let state: Store = { progress: {}, matchProgress: {} }
-let isHydrated = false
+function loadCache(): Store | null {
+  if (typeof window === "undefined") return null
+  try {
+    const raw = localStorage.getItem(CACHE_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
+}
+
+function saveCache(data: Store) {
+  if (typeof window === "undefined") return
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(data))
+  } catch {
+    // Storage full/unavailable — cache is a nice-to-have, not critical.
+  }
+}
+
+const cachedInitial = loadCache()
+let state: Store = cachedInitial ?? { progress: {}, matchProgress: {} }
+let isHydrated = cachedInitial !== null
 let currentUserId: string | null = null
 let authWired = false
 let realtimeChannel: RealtimeChannel | null = null
@@ -150,6 +175,7 @@ async function hydrateForUser(userId: string) {
   }
 
   isHydrated = true
+  saveCache(state)
   emit()
 }
 
@@ -180,6 +206,7 @@ function subscribeRealtime(userId: string) {
           progress: { ...state.progress, [k]: row.owned ?? false },
           matchProgress: { ...state.matchProgress, [k]: row.matches ?? 0 },
         }
+        saveCache(state)
         emit()
       }
     )
@@ -241,6 +268,7 @@ async function toggleInStore(weaponId: string, camoId: string) {
   localWriteVersion++
   const k = key(weaponId, camoId)
   state = { ...state, progress: { ...state.progress, [k]: !state.progress[k] } }
+  saveCache(state)
   emit()
   await persistRow(weaponId, camoId)
 }
@@ -255,6 +283,7 @@ async function setManyOwnedInStore(weaponIds: string[], camoId: string, owned: b
     nextProgress[key(weaponId, camoId)] = owned
   })
   state = { ...state, progress: nextProgress }
+  saveCache(state)
   emit()
 
   if (!currentUserId) return
@@ -276,6 +305,7 @@ async function setMatchProgressInStore(weaponId: string, camoId: string, value: 
   localWriteVersion++
   const k = key(weaponId, camoId)
   state = { ...state, matchProgress: { ...state.matchProgress, [k]: Math.max(0, value) } }
+  saveCache(state)
   emit()
   await persistRow(weaponId, camoId)
 }
