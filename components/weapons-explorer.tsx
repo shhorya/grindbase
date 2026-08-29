@@ -2,14 +2,15 @@
 
 import { useMemo, useState } from "react"
 import Image from "next/image"
-import { Search, SlidersHorizontal, X } from "lucide-react"
+import { Diamond, Search, SlidersHorizontal, Trophy, X } from "lucide-react"
 import { WeaponCard } from "@/components/weapon-card"
 import { DiamondProgressCard } from "@/components/diamond-progress-card"
 import { Input } from "@/components/ui/input"
 import { GoldBar } from "@/components/gold-bar"
 import { categories, tierMeta, getDiamondRequirementLabel } from "@/lib/data"
-import { DIAMOND_REQUIREMENTS } from "@/lib/constants"
+import { DIAMOND_REQUIREMENTS, CATEGORY_IMAGES, CATEGORY_SHOWCASE_WEAPON } from "@/lib/constants"
 import { useCamoData, type CompleteWeapon } from "@/lib/use-camo-data"
+import { weapons as staticWeapons } from "@/lib/weapons"
 import type { WeaponCategory } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
@@ -188,8 +189,44 @@ export function WeaponsExplorer({
 
   const showDiamondProgress = effectiveTier === "diamond" && status === "unowned"
 
+  const categoryWeapons = category !== "all" ? weapons.filter((w) => w.category === category) : []
+  const categoryGoldCount = categoryWeapons.filter((w) => w.gold).length
+  const categoryDiamondCount = categoryWeapons.filter((w) => w.diamond).length
+  const categoryShowcaseImage =
+    category !== "all"
+      ? staticWeapons.find((w) => w.id === CATEGORY_SHOWCASE_WEAPON[category])?.image ?? CATEGORY_IMAGES[category]
+      : null
+
   return (
     <div>
+      {category !== "all" && (
+        <div className="mb-5 flex items-center gap-4 rounded-2xl border border-border/70 glass p-5">
+          <div className="relative h-14 w-20 shrink-0 overflow-hidden rounded-xl border border-border/50 bg-[radial-gradient(circle_at_center,theme(colors.secondary/60%),transparent_70%)]">
+            <div className="absolute inset-0 bg-background/40" />
+            <Image src={categoryShowcaseImage!} alt={category} fill className="relative object-contain p-2" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-lg font-medium">{category}</h2>
+            <div className="mt-1.5 flex items-center gap-5">
+              <span className="flex items-center gap-1.5 text-sm">
+                <Trophy className="size-3.5 text-gold" />
+                <span className="font-mono font-semibold text-gold">
+                  {categoryGoldCount}/{categoryWeapons.length}
+                </span>
+                <span className="text-muted-foreground">Gold</span>
+              </span>
+              <span className="flex items-center gap-1.5 text-sm">
+                <Diamond className="size-3.5 text-diamond" />
+                <span className="font-mono font-semibold text-diamond">
+                  {categoryDiamondCount}/{categoryWeapons.length}
+                </span>
+                <span className="text-muted-foreground">Diamond</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {tierBanner && (
         <div
           className={cn(
