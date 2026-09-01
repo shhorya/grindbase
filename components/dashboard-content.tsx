@@ -44,7 +44,7 @@ export function DashboardContent() {
   const [totalView, setTotalView] = useState<"gold" | "diamond">("gold")
   const [grindView, setGrindView] = useState<"gold" | "diamond">("gold")
   const grinds = weapons
-    .filter((w) => !w.diamond)
+    .filter((w) => w.gold && !w.diamond)
     .map((w) => {
       const req = getDiamondRequirement(w)
       const target = req.target
