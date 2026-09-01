@@ -108,25 +108,19 @@ export function WeaponsExplorer({
       patch.completion = next ? 100 : 0
 
       if (next) {
+        // Whether this is the category's first-ever Platinum, or a batch
+        // of newer weapons catching up to an already-Platinum category —
+        // same rule either way: every currently-non-Platinum weapon in
+        // the category must be Gold before any of them get Platinum.
         const categoryWeapons = weapons.filter((w) => w.category === weapon.category)
-        const categoryHasPlatinum = categoryWeapons.some((w) => w.platinum)
+        const nonPlatinumWeapons = categoryWeapons.filter((w) => !w.platinum)
+        const allNonPlatinumNowGold = nonPlatinumWeapons.every((w) => w.id === weaponId || w.gold)
 
-        if (categoryHasPlatinum) {
-          // Category already earned Platinum before this weapon existed
-          // (or before you golded it) — catch it up automatically.
+        if (nonPlatinumWeapons.length > 0 && allNonPlatinumNowGold) {
           patch.platinum = true
-        } else {
-          // Does golding this weapon complete the category for the first
-          // time? If so, grant Platinum to everyone in it right now.
-          const allOthersGold = categoryWeapons
+          nonPlatinumWeapons
             .filter((w) => w.id !== weaponId)
-            .every((w) => w.gold)
-          if (allOthersGold) {
-            patch.platinum = true
-            categoryWeapons
-              .filter((w) => w.id !== weaponId)
-              .forEach((w) => updateWeapon(w.id, { platinum: true }))
-          }
+            .forEach((w) => updateWeapon(w.id, { platinum: true }))
         }
       }
 

@@ -130,7 +130,7 @@ export function DashboardContent() {
     {
       label: "Damascus",
       icon: Award,
-      value: stats.damascusUnlocked ? stats.weaponsTotal : 0,
+      value: stats.damascusWeaponCount,
       total: stats.weaponsTotal,
       tone: "damascus" as const,
       ring: "border-purple-400/40 bg-gradient-to-br from-red-500/15 to-blue-500/15 text-purple-300",

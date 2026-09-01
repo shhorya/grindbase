@@ -312,7 +312,7 @@ export default function LandingPage() {
                   { label: "Diamond", value: stats.diamondCount, total: weapons.length, tone: "diamond" as const, text: "text-diamond" },
                   {
                     label: "Damascus",
-                    value: stats.damascusUnlocked ? weapons.length : 0,
+                    value: stats.damascusWeaponCount,
                     total: weapons.length,
                     tone: "damascus" as const,
                     text: "bg-gradient-to-r from-red-400 via-purple-400 to-blue-400 bg-clip-text text-transparent",

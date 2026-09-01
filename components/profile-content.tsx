@@ -132,7 +132,7 @@ export function ProfileContent({
   const memberSince = formatDate(createdAt)
 
   const platinumCategoryCount = getPlatinumCount(weapons, categories)
-  const damascusWeaponCount = stats.damascusUnlocked ? stats.weaponsTotal : 0
+  const damascusWeaponCount = stats.damascusWeaponCount
 
   // "Completed" = every eligible weapon owns that camo, not just any progress.
   const seasonalCompleted = seasonalCamoStats.filter(
