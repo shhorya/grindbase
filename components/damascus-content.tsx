@@ -10,6 +10,7 @@ import { GoldBar } from "@/components/gold-bar"
 import { Input } from "@/components/ui/input"
 import { useCamoData } from "@/lib/use-camo-data"
 import { categories } from "@/lib/data"
+import { DAMASCUS_OG_WEAPON_IDS } from "@/lib/constants"
 import type { WeaponCategory } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
@@ -28,7 +29,13 @@ export function DamascusContent() {
 
   const notGold = weapons.filter((w) => !w.gold)
   const allSelected = selected.size === notGold.length && notGold.length > 0
-  const tierPct = weapons.length > 0 ? Math.round((stats.goldCount / weapons.length) * 100) : 0
+  const ogWeaponsWithPlatinum = weapons.filter(
+    (w) => DAMASCUS_OG_WEAPON_IDS.includes(w.id) && w.platinum
+  ).length
+  const tierPct =
+    DAMASCUS_OG_WEAPON_IDS.length > 0
+      ? Math.round((ogWeaponsWithPlatinum / DAMASCUS_OG_WEAPON_IDS.length) * 100)
+      : 0
 
   useEffect(() => {
     if (!showCelebration) return
@@ -106,7 +113,7 @@ export function DamascusContent() {
                   {tierPct}%
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {stats.goldCount}/{weapons.length} weapons
+                  {ogWeaponsWithPlatinum}/{DAMASCUS_OG_WEAPON_IDS.length} weapons
                 </p>
               </div>
             </div>
