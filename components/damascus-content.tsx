@@ -93,8 +93,8 @@ export function DamascusContent() {
             Select weapons to unlock together
           </h1>
           <p className="text-muted-foreground">
-            Damascus requires every weapon at Gold. Select the remaining ones
-            and unlock them at once.
+            Damascus requires Platinum on all 35 original launch weapons.
+            Select the remaining ones below and unlock them at once.
           </p>
         </div>
 
