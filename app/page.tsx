@@ -152,7 +152,7 @@ export default function LandingPage() {
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-xs font-medium text-gold">
               <Zap className="size-3.5" />
-              SEASON 7 · TERMINATED
+              SEASON 8 · AGAINST ALL FATE
             </div>
             <h1 className="mt-6 text-balance text-5xl font-semibold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
               Unlock every{" "}

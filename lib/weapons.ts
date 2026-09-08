@@ -265,6 +265,13 @@ export const weapons: Weapon[] = [
     image: "/weapons/ar/cronen-squall.webp",
     eligibleSeasonalCamos: 36,
   },
+  {
+    id: "iso-hemlock",
+    name: "ISO Hemlock",
+    category: "Assault Rifle",
+    image: "/weapons/ar/iso-hemlock.webp",
+    eligibleSeasonalCamos: 36,
+  },
 
   // =========================
   // SNIPER RIFLES
@@ -691,6 +698,13 @@ export const weapons: Weapon[] = [
     name: "FSS Hurricane",
     category: "SMG",
     image: "/weapons/smg/fss-hurricane.webp",
+    eligibleSeasonalCamos: 36,
+  },
+  {
+    id: "static-hv",
+    name: "Static-HV",
+    category: "SMG",
+    image: "/weapons/smg/static-hv.webp",
     eligibleSeasonalCamos: 36,
   },
 
