@@ -45,6 +45,13 @@ const SEASONAL_CAMO_EXCLUDED_BY_WEAPON: Record<string, string[]> = {
     "stained-panes", "scorch-melt", "t-3-infused", "gilded-mist", "rime",
     "incandescent", "griffins-victory", "melted-amethyst", "fractal-visions", "white-paint",
   ],
+  "ISO Hemlock": [
+    "ice-locked", "opalescence", "golden-opportunity", "futuristic", "carmine",
+    "dream-aurora", "mystic-burst", "nephrite", "power-nova", "shimmer", "ivory",
+    "lunar-tear", "ocean-waves", "astronomy", "sunken-gambit", "psychic-distortion",
+    "stained-panes", "scorch-melt", "t-3-infused", "gilded-mist", "rime",
+    "incandescent", "griffins-victory", "melted-amethyst", "fractal-visions", "white-paint", "wildfire",
+  ],
 
   // Sniper
   "LW3-Tundra": ["ice-locked"],
@@ -95,6 +102,13 @@ const SEASONAL_CAMO_EXCLUDED_BY_WEAPON: Record<string, string[]> = {
     "lunar-tear", "ocean-waves", "astronomy", "sunken-gambit", "psychic-distortion",
     "stained-panes", "scorch-melt", "t-3-infused", "gilded-mist", "rime", "incandescent",
     "griffins-victory", "melted-amethyst",
+  ],
+  "Static-HV": [
+    "ice-locked", "opalescence", "golden-opportunity", "futuristic", "carmine",
+    "dream-aurora", "mystic-burst", "nephrite", "power-nova", "shimmer", "ivory",
+    "lunar-tear", "ocean-waves", "astronomy", "sunken-gambit", "psychic-distortion",
+    "stained-panes", "scorch-melt", "t-3-infused", "gilded-mist", "rime",
+    "incandescent", "griffins-victory", "melted-amethyst", "fractal-visions", "white-paint", "wildfire",
   ],
 
   // eligibleSeasonalCamos count in weapons.ts (should be 2), not an
