@@ -76,6 +76,7 @@ export const SEASONAL_CAMOS: SeasonalCamo[] = [
   { id: "white-paint", name: "White Paint", texture: "/seasonal/white-paint.webp", order: 36, source: "Tournament" },
   { id: "wildfire", name: "Wildfire", texture: "/seasonal/wildfire.webp", order: 37, source: "Secret Cache" },
   //{ id: "GoldenEnergy", name: "GoldenEnergy", texture: "/seasonal/goldenenergy.webp", order: -, source: "Cancelled" },
+  //{ id: "RitaRossweisseCXB", name: "RitaRossweisseCXB", texture: "/seasonal/ritarossweissecxb.webp", order: -, source: "Cancelled" },
   //{ id: "AcidicArt", name: "AcidicArt", texture: "/seasonal/acidicart.webp", order: -, source: "Cancelled" },
   { id: "coma-berenices", name: "Coma Berenices", texture: "/seasonal/coma-berenices.webp", order: 38, source: "Event" },
   { id: "mercurial", name: "Mercurial", texture: "/seasonal/mercurial.webp", order: 39, source: "Tournament" },
