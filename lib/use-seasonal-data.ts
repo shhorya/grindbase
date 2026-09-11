@@ -104,10 +104,11 @@ const SEASONAL_CAMO_EXCLUDED_BY_WEAPON: Record<string, string[]> = {
     "griffins-victory", "melted-amethyst",
   ],
   "Static-HV": [
-    "ice-locked", "opalescence", "golden-opportunity", "futuristic", "carmine",
-    "dream-aurora", "mystic-burst", "nephrite", "power-nova", "shimmer", "ivory",
-    "lunar-tear", "ocean-waves", "astronomy", "sunken-gambit", "psychic-distortion",
-    "stained-panes", "scorch-melt", "t-3-infused", "gilded-mist", "rime",
+    "red-sprite", "glacial-ripple", "polychromatic", "blistering-magma", "golden-emerald",
+    "fluoroscence", "pixelated-aggresion", "making-waves", "assault-pattern","opalescence",
+    "golden-opportunity", "futuristic", "carmine", "dream-aurora", "mystic-burst", "nephrite",
+    "power-nova", "shimmer", "ivory", "lunar-tear", "ocean-waves", "astronomy", "sunken-gambit",
+    "psychic-distortion", "stained-panes", "scorch-melt", "t-3-infused", "gilded-mist", "rime",
     "incandescent", "griffins-victory", "melted-amethyst", "fractal-visions", "white-paint", "wildfire",
   ],
 
