@@ -105,7 +105,7 @@ const SEASONAL_CAMO_EXCLUDED_BY_WEAPON: Record<string, string[]> = {
   ],
   "Static-HV": [
     "red-sprite", "glacial-ripple", "polychromatic", "blistering-magma", "golden-emerald",
-    "fluoroscence", "pixelated-aggresion", "making-waves", "assault-pattern","opalescence",
+    "fluorescence", "pixelated-aggression", "making-waves", "assault-pattern","opalescence",
     "golden-opportunity", "futuristic", "carmine", "dream-aurora", "mystic-burst", "nephrite",
     "power-nova", "shimmer", "ivory", "lunar-tear", "ocean-waves", "astronomy", "sunken-gambit",
     "psychic-distortion", "stained-panes", "scorch-melt", "t-3-infused", "gilded-mist", "rime",
