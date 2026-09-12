@@ -259,17 +259,17 @@ export const weapons: Weapon[] = [
     eligibleSeasonalCamos: 36,
   },
   {
-    id: "cronen-squall",
-    name: "Cronen Squall",
-    category: "Assault Rifle",
-    image: "/weapons/ar/cronen-squall.webp",
-    eligibleSeasonalCamos: 36,
-  },
-  {
     id: "iso-hemlock",
     name: "ISO Hemlock",
     category: "Assault Rifle",
     image: "/weapons/ar/iso-hemlock.webp",
+    eligibleSeasonalCamos: 36,
+  },
+  {
+    id: "cronen-squall",
+    name: "Cronen Squall",
+    category: "Assault Rifle",
+    image: "/weapons/ar/cronen-squall.webp",
     eligibleSeasonalCamos: 36,
   },
 
