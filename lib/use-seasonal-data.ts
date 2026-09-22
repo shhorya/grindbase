@@ -11,28 +11,27 @@ import { useSeasonalProgress } from "./seasonal-store"
 // explicitly by camo id. Add more entries here as more gaps get reported.
 // Ordered to match the category order and weapon order used in weapons.ts.
 const SEASONAL_CAMO_EXCLUDED_BY_WEAPON: Record<string, string[]> = {
-  // Assault Rifle
-  "Type 19": ["ice-locked"],
-  "BP50": ["ice-locked", "opalescence", "golden-opportunity"],
-  "LAG 53": ["ice-locked", "opalescence", "golden-opportunity", "futuristic"],
-  "XM4": ["ice-locked", "opalescence", "golden-opportunity", "futuristic", "carmine", "mystic-burst"],
-  "Vargo-S": [
-    "ice-locked", "opalescence", "golden-opportunity", "futuristic", "carmine",
+
+  // Assault Rifle  
+  "BP50": ["opalescence", "golden-opportunity"],
+  "LAG 53": ["opalescence", "golden-opportunity", "futuristic"],
+  "XM4": ["opalescence", "golden-opportunity", "futuristic", "carmine", "mystic-burst"],
+  "Vargo-S": ["opalescence", "golden-opportunity", "futuristic", "carmine",
     "mystic-burst", "nephrite", "power-nova", "shimmer",
   ],
   "RAM-7": [
-    "ice-locked", "opalescence", "golden-opportunity", "futuristic", "carmine",
+    "opalescence", "golden-opportunity", "futuristic", "carmine",
     "mystic-burst", "nephrite", "power-nova", "shimmer", "ivory", "lunar-tear",
     "ocean-waves", "astronomy", "sunken-gambit",
   ],
   "Lachmann-556": [
-    "ice-locked", "opalescence", "golden-opportunity", "futuristic", "carmine",
+    "opalescence", "golden-opportunity", "futuristic", "carmine",
     "dream-aurora", "mystic-burst", "nephrite", "power-nova", "shimmer", "ivory",
     "lunar-tear", "ocean-waves", "astronomy", "sunken-gambit", "psychic-distortion",
     "stained-panes", "scorch-melt", "t-3-infused", "gilded-mist",
   ],
   "BAL-27": [
-    "ice-locked", "opalescence", "golden-opportunity", "futuristic", "carmine",
+    "opalescence", "golden-opportunity", "futuristic", "carmine",
     "dream-aurora", "mystic-burst", "nephrite", "power-nova", "shimmer", "ivory",
     "lunar-tear", "ocean-waves", "astronomy", "sunken-gambit", "psychic-distortion",
     "stained-panes", "scorch-melt", "t-3-infused", "gilded-mist", "rime",
@@ -47,7 +46,7 @@ const SEASONAL_CAMO_EXCLUDED_BY_WEAPON: Record<string, string[]> = {
     "incandescent", "griffins-victory", "melted-amethyst", "fractal-visions", "white-paint", "wildfire",
   ],
   "Cronen Squall": [
-    "ice-locked", "opalescence", "golden-opportunity", "futuristic", "carmine",
+    "opalescence", "golden-opportunity", "futuristic", "carmine",
     "dream-aurora", "mystic-burst", "nephrite", "power-nova", "shimmer", "ivory",
     "lunar-tear", "ocean-waves", "astronomy", "sunken-gambit", "psychic-distortion",
     "stained-panes", "scorch-melt", "t-3-infused", "gilded-mist", "rime",
@@ -55,50 +54,47 @@ const SEASONAL_CAMO_EXCLUDED_BY_WEAPON: Record<string, string[]> = {
   ],
   
   // Sniper
-  "LW3-Tundra": ["ice-locked"],
   "3-Line Rifle": [
-    "ice-locked", "opalescence", "golden-opportunity", "futuristic", "carmine",
+    "opalescence", "golden-opportunity", "futuristic", "carmine",
     "mystic-burst", "nephrite", "power-nova", "shimmer", "ivory", "lunar-tear",
   ],
 
   // LMG
-  "RAAL MG": ["ice-locked", "opalescence", "golden-opportunity", "futuristic", "carmine", "mystic-burst"],
+  "RAAL MG": ["opalescence", "golden-opportunity", "futuristic", "carmine", "mystic-burst"],
   "MG 82": [
-    "ice-locked", "opalescence", "golden-opportunity", "futuristic", "carmine",
+    "opalescence", "golden-opportunity", "futuristic", "carmine",
     "mystic-burst", "nephrite", "power-nova", "shimmer", "ivory", "lunar-tear",
     "ocean-waves", "astronomy",
   ],
   "DP27": [
-    "ice-locked", "opalescence", "golden-opportunity", "futuristic", "carmine",
+    "opalescence", "golden-opportunity", "futuristic", "carmine",
     "dream-aurora", "mystic-burst", "nephrite", "power-nova", "shimmer", "ivory",
     "lunar-tear", "ocean-waves", "astronomy", "sunken-gambit", "psychic-distortion",
     "stained-panes", "scorch-melt", "t-3-infused", "gilded-mist", "rime", "incandescent",
   ],
-  "MG42": [
-    "ice-locked", "opalescence",
-  ],
+  "MG42": ["opalescence"],
 
   // SMG
-  "TEC-9": ["ice-locked", "opalescence"],
-  "ISO": ["ice-locked", "opalescence", "golden-opportunity", "futuristic"],
-  "USS 9": ["ice-locked", "opalescence", "golden-opportunity", "futuristic", "carmine"],
+  "TEC-9": ["opalescence"],
+  "ISO": ["opalescence", "golden-opportunity", "futuristic"],
+  "USS 9": ["opalescence", "golden-opportunity", "futuristic", "carmine"],
   "VMP": [
-    "ice-locked", "opalescence", "golden-opportunity", "futuristic", "carmine",
+    "opalescence", "golden-opportunity", "futuristic", "carmine",
     "mystic-burst", "nephrite", "power-nova", "shimmer",
   ],
   "Sten": [
-    "ice-locked", "opalescence", "golden-opportunity", "futuristic", "carmine",
+    "opalescence", "golden-opportunity", "futuristic", "carmine",
     "dream-aurora", "mystic-burst", "nephrite", "power-nova", "shimmer", "ivory",
     "lunar-tear", "ocean-waves", "astronomy", "sunken-gambit", "psychic-distortion",
   ],
   "LC10": [
-    "ice-locked", "opalescence", "golden-opportunity", "futuristic", "carmine",
+    "opalescence", "golden-opportunity", "futuristic", "carmine",
     "dream-aurora", "mystic-burst", "nephrite", "power-nova", "shimmer", "ivory",
     "lunar-tear", "ocean-waves", "astronomy", "sunken-gambit", "psychic-distortion",
     "stained-panes", "scorch-melt", "t-3-infused",
   ],
   "FSS Hurricane": [
-    "ice-locked", "opalescence", "golden-opportunity", "futuristic", "carmine",
+    "opalescence", "golden-opportunity", "futuristic", "carmine",
     "dream-aurora", "mystic-burst", "nephrite", "power-nova", "shimmer", "ivory",
     "lunar-tear", "ocean-waves", "astronomy", "sunken-gambit", "psychic-distortion",
     "stained-panes", "scorch-melt", "t-3-infused", "gilded-mist", "rime", "incandescent",
@@ -119,40 +115,37 @@ const SEASONAL_CAMO_EXCLUDED_BY_WEAPON: Record<string, string[]> = {
 
   // Shotgun
   "VLK Rogue": [
-    "ice-locked", "opalescence", "golden-opportunity", "futuristic", "carmine",
+    "opalescence", "golden-opportunity", "futuristic", "carmine",
     "mystic-burst", "nephrite", "power-nova",
   ],
   "Einhorn Revolving": [
-    "ice-locked", "opalescence", "golden-opportunity", "futuristic", "carmine",
+    "opalescence", "golden-opportunity", "futuristic", "carmine",
     "dream-aurora", "mystic-burst", "nephrite", "power-nova", "shimmer", "ivory",
     "lunar-tear", "ocean-waves", "astronomy", "sunken-gambit", "psychic-distortion",
     "stained-panes",
   ],
   "MX-Guardian": [
-    "ice-locked", "opalescence", "golden-opportunity", "futuristic", "carmine",
+    "opalescence", "golden-opportunity", "futuristic", "carmine",
     "dream-aurora", "mystic-burst", "nephrite", "power-nova", "shimmer", "ivory",
     "lunar-tear", "ocean-waves", "astronomy", "sunken-gambit", "psychic-distortion",
     "stained-panes", "scorch-melt", "t-3-infused", "gilded-mist", "rime",
   ],
 
   // Marksman
-  "Type 63": ["ice-locked", "opalescence", "golden-opportunity", "futuristic", "carmine"],
+  "Type 63": ["opalescence", "golden-opportunity", "futuristic", "carmine"],
   "M1 Garand": [
-    "ice-locked", "opalescence", "golden-opportunity", "futuristic", "carmine",
+    "opalescence", "golden-opportunity", "futuristic", "carmine",
     "mystic-burst", "nephrite", "power-nova",
   ],
   "SO-14": [
-    "ice-locked", "opalescence", "golden-opportunity", "futuristic", "carmine",
+    "opalescence", "golden-opportunity", "futuristic", "carmine",
     "dream-aurora", "mystic-burst", "nephrite", "power-nova", "shimmer", "ivory",
     "lunar-tear", "ocean-waves", "astronomy", "sunken-gambit", "psychic-distortion",
     "stained-panes", "scorch-melt",
   ],
 
   // Pistol
-  "Machine Pistol": ["ice-locked", "opalescence", "golden-opportunity"],
-
-  // Melee
-  "Spear": ["ice-locked"],
+  "Machine Pistol": ["opalescence", "golden-opportunity"],
 }
 
 export function useSeasonalData() {
