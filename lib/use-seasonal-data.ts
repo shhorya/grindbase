@@ -53,12 +53,12 @@ const SEASONAL_CAMO_EXCLUDED_BY_WEAPON: Record<string, string[]> = {
     "incandescent", "griffins-victory", "melted-amethyst", "fractal-visions", "white-paint", "wildfire",
   ],
   "Grav": ["red-sprite", "glacial-ripple", "polychromatic", "blistering-magma", "golden-emerald",
-    "fluorescence", "pixelated-aggression", "making-waves", "assault-pattern","opalescence",
+    "fluorescence", "pixelated-aggression", "making-waves", "assault-pattern", "ice-locked", "opalescence",
     "golden-opportunity", "futuristic", "carmine", "dream-aurora", "mystic-burst", "nephrite",
     "power-nova", "shimmer", "ivory", "lunar-tear", "ocean-waves", "astronomy", "sunken-gambit",
     "psychic-distortion", "stained-panes", "scorch-melt", "t-3-infused", "gilded-mist", "rime",
     "incandescent", "griffins-victory", "melted-amethyst", "fractal-visions", "white-paint", "wildfire",
-    "coma-berencies", "mercurial",
+    "coma-berenices", "mercurial",
   ],
 
   // Sniper
