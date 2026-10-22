@@ -37,6 +37,13 @@ const SEASONAL_CAMO_EXCLUDED_BY_WEAPON: Record<string, string[]> = {
     "stained-panes", "scorch-melt", "t-3-infused", "gilded-mist", "rime",
     "incandescent", "griffins-victory",
   ],
+    "Cronen Squall": [
+    "opalescence", "golden-opportunity", "futuristic", "carmine",
+    "dream-aurora", "mystic-burst", "nephrite", "power-nova", "shimmer", "ivory",
+    "lunar-tear", "ocean-waves", "astronomy", "sunken-gambit", "psychic-distortion",
+    "stained-panes", "scorch-melt", "t-3-infused", "gilded-mist", "rime",
+    "incandescent", "griffins-victory", "melted-amethyst", "fractal-visions", "white-paint",
+  ],
   "ISO Hemlock": [
     "red-sprite", "glacial-ripple", "polychromatic", "blistering-magma", "golden-emerald",
     "fluorescence", "pixelated-aggression", "making-waves", "assault-pattern","opalescence",
@@ -45,14 +52,15 @@ const SEASONAL_CAMO_EXCLUDED_BY_WEAPON: Record<string, string[]> = {
     "psychic-distortion", "stained-panes", "scorch-melt", "t-3-infused", "gilded-mist", "rime",
     "incandescent", "griffins-victory", "melted-amethyst", "fractal-visions", "white-paint", "wildfire",
   ],
-  "Cronen Squall": [
-    "opalescence", "golden-opportunity", "futuristic", "carmine",
-    "dream-aurora", "mystic-burst", "nephrite", "power-nova", "shimmer", "ivory",
-    "lunar-tear", "ocean-waves", "astronomy", "sunken-gambit", "psychic-distortion",
-    "stained-panes", "scorch-melt", "t-3-infused", "gilded-mist", "rime",
-    "incandescent", "griffins-victory", "melted-amethyst", "fractal-visions", "white-paint",
+  "Grav": ["red-sprite", "glacial-ripple", "polychromatic", "blistering-magma", "golden-emerald",
+    "fluorescence", "pixelated-aggression", "making-waves", "assault-pattern","opalescence",
+    "golden-opportunity", "futuristic", "carmine", "dream-aurora", "mystic-burst", "nephrite",
+    "power-nova", "shimmer", "ivory", "lunar-tear", "ocean-waves", "astronomy", "sunken-gambit",
+    "psychic-distortion", "stained-panes", "scorch-melt", "t-3-infused", "gilded-mist", "rime",
+    "incandescent", "griffins-victory", "melted-amethyst", "fractal-visions", "white-paint", "wildfire",
+    "coma-berencies", "mercurial",
   ],
-  
+
   // Sniper
   "3-Line Rifle": [
     "opalescence", "golden-opportunity", "futuristic", "carmine",
